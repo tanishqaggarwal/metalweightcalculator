@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/shapeType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="shapeType" />
+
+        <TextView
+            android:id="@+id/pieceWidthDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="pieceWidthDescription" />
+
+        <TextView
+            android:id="@+id/pieceLength"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="pieceLength" />
+
+        <TextView
+            android:id="@+id/pieceWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="pieceWeight" />
+
+        <TextView
+            android:id="@+id/totalWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="totalWeight" />
+
+        <TextView
+            android:id="@+id/totalCost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="totalCost" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>
