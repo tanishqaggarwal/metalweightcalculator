@@ -13,6 +13,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -30,6 +31,8 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 public class MetalCalculateActivity extends AppCompatActivity {
 
+    ArrayList<String> currentPhotoPath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,13 +49,15 @@ public class MetalCalculateActivity extends AppCompatActivity {
         LinearLayout ll = findViewById(R.id.customFields);
         LayoutInflater li = LayoutInflater.from(getApplicationContext());
         for(int i = 0; i < 3; i++) {
-            View formElement = li.inflate(R.layout.form_element_metal_calculate, null);
-            ((TextView) formElement.findViewById(R.id.itemName)).setText("Hello!");
+            // TODO populate from existing xml
+            EditText formElement = new EditText(getApplicationContext());
+            formElement.setHint("Hello!");
             ll.addView(formElement);
         }
-    }
 
-    ArrayList<String> currentPhotoPath;
+        // Initialize photos path
+        currentPhotoPath = new ArrayList<>();
+    }
 
     public void takePicture(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -94,11 +99,15 @@ public class MetalCalculateActivity extends AppCompatActivity {
     }
 
     public void savePieceInfo(View v) {
+        // TODO
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
     public void readBarcode(View v) {
+        // TODO this is currently dummy code that reads a hardcoded barcode
+
         Bitmap myBitmap = BitmapFactory.decodeResource(
                 getApplicationContext().getResources(),
                 R.drawable.barcode);

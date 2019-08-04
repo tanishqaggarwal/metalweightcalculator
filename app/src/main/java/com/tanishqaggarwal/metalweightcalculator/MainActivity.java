@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
         sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 13, 12, 12, 12));
         sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 124, 12, 12, 12));
         sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 125, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 12, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 121, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 11, 12, 12, 12));
     }
 
     public void goToAddItem(View v) {
