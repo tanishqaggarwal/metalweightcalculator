@@ -9,6 +9,11 @@ import android.widget.TextView;
 import java.util.LinkedList;
 import java.util.List;
 
+
+/**
+ * Adapter that allows binding of data of a saved metal piece to the RecyclerView
+ * in the main activity that displays all saved pieces.
+ */
 public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.SavedPieceCardHolder> {
     public List<SavedPieceInfo> savedPieceInfoList;
 
@@ -21,6 +26,12 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
         return savedPieceInfoList.size();
     }
 
+    /**
+     * Populates newly recycled view holder with data from a previous view holder.
+     *
+     * @param savedPieceCardHolder Old view holder.
+     * @param i Index of new view holder.
+     */
     @Override
     public void onBindViewHolder(SavedPieceAdapter.SavedPieceCardHolder savedPieceCardHolder, int i) {
         SavedPieceInfo spi = savedPieceInfoList.get(i);
@@ -32,6 +43,13 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
         savedPieceCardHolder.vTotalCost.setText("Total cost: " + spi.numPieces * spi.pieceCost);
     }
 
+    /**
+     * Inflates a RecyclerView-provided view with the layout of a saved piece.
+     *
+     * @param viewGroup
+     * @param i
+     * @return
+     */
     @Override
     public SavedPieceAdapter.SavedPieceCardHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
@@ -41,6 +59,10 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
         return new SavedPieceAdapter.SavedPieceCardHolder(itemView);
     }
 
+    /**
+     * Decomposes the ViewHolder provided by RecyclerView into the data fields relevant to a saved
+     * piece.
+     */
     public class SavedPieceCardHolder extends RecyclerView.ViewHolder {
         protected TextView vShapeType;
         protected TextView vWidthDescription;

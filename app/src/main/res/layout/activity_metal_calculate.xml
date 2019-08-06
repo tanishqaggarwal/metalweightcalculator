@@ -8,82 +8,59 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="164dp"
-        android:layout_height="157dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:srcCompat="@mipmap/ic_launcher"
-        tools:layout_editor_absoluteX="7dp"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintWidth_percent=".35"
+        app:layout_constraintHeight_percent=".35"/>
 
     <Spinner
         android:id="@+id/metalSelect"
-        android:layout_width="201dp"
+        android:layout_width="0dp"
         android:layout_height="30dp"
         app:layout_constraintLeft_toRightOf="@+id/imageView"
-        tools:layout_editor_absoluteY="16dp" />
-
-    <Button
-        android:id="@+id/addPictureBtn"
-        android:layout_width="95dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="8dp"
-        android:onClick="takePicture"
-        android:text="Add Pictures"
-        app:layout_constraintLeft_toRightOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/readBarcodeBtn" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".65"
+        app:layout_constraintHeight_percent=".1"/>
 
     <Button
         android:id="@+id/readBarcodeBtn"
-        android:layout_width="200dp"
-        android:layout_height="39dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:onClick="readBarcode"
         android:text="Read Barcode"
         app:layout_constraintLeft_toRightOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/metalSelect" />
-
-    <LinearLayout
-        android:id="@+id/customFields"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
-        android:orientation="vertical">
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/metalSelect"
+        app:layout_constraintWidth_percent=".65"
+        app:layout_constraintHeight_percent=".1"/>
 
     <Button
-        android:id="@+id/calculateBtn"
-        android:layout_width="190dp"
-        android:layout_height="38dp"
-        android:text="Calculate"
-        app:layout_constraintRight_toLeftOf="@+id/saveBtn"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="195dp"
-        android:layout_height="39dp"
-        android:onClick="savePieceInfo"
-        android:text="Save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/calculateBtn" />
-
-    <TextView
-        android:id="@+id/resultsText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Results: 0 lb"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
-        tools:layout_editor_absoluteX="133dp" />
+        android:id="@+id/addPictureBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="takePicture"
+        android:text="Add Pictures"
+        app:layout_constraintLeft_toRightOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/readBarcodeBtn"
+        app:layout_constraintWidth_percent=".325"
+        app:layout_constraintHeight_percent=".15"/>
 
     <RadioGroup
-        android:layout_width="95dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="12dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/readBarcodeBtn"
         app:layout_constraintLeft_toRightOf="@id/addPictureBtn"
-        tools:layout_editor_absoluteX="282dp">
+        app:layout_constraintWidth_percent=".325"
+        app:layout_constraintHeight_percent=".15">
+
+        <RadioButton
+            android:id="@+id/calculateByLengthRadioBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="By Length" />
 
         <RadioButton
             android:id="@+id/calculateByWeightRadioBtn"
@@ -92,10 +69,55 @@
             android:checked="true"
             android:text="By Weight" />
 
-        <RadioButton
-            android:id="@+id/calculateByLengthRadioBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="By Length" />
     </RadioGroup>
+
+    <EditText
+        android:id="@+id/densityField"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:hint="Density: 0.00 g/cm3"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/imageView"
+        app:layout_constraintHeight_percent=".1" />
+
+    <LinearLayout
+        android:id="@+id/customFields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/densityField"
+        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/calculateBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Calculate"
+        app:layout_constraintRight_toLeftOf="@+id/saveBtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_percent=".5"
+        app:layout_constraintHeight_percent=".1"/>
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="savePieceInfo"
+        android:text="Save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/calculateBtn"
+        app:layout_constraintWidth_percent=".5"
+        app:layout_constraintHeight_percent=".1"/>
+
+    <TextView
+        android:id="@+id/resultsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Results: 0 lb"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
+        app:layout_constraintHeight_percent=".1"/>
+
 </android.support.constraint.ConstraintLayout>

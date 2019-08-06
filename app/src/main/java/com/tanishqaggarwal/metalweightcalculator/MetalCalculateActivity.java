@@ -3,6 +3,7 @@ package com.tanishqaggarwal.metalweightcalculator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -10,8 +11,10 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,26 +27,59 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 public class MetalCalculateActivity extends AppCompatActivity {
 
     ArrayList<String> currentPhotoPath;
+    HashMap<String, Double> densities;
+
+    EditText vDensity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_metal_calculate);
 
-        // Add metal types
+        // Get selected shape type and get relevant form elements
+        Bundle bundle = getIntent().getExtras();
+        String shapeType = bundle.getString("shape");
+        System.out.println(shapeType);
+
+        // Get all form elements
+        vDensity = this.findViewById(R.id.densityField);
+
+        // TODO read from XML
+        densities = new HashMap<>();
+
+        // Add metal types to dropdown and create handler
         Spinner spinner = findViewById(R.id.metalSelect);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.metals_list, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new ArrayList<>(densities.keySet()));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedMaterial = ((Spinner) selectedItemView).getSelectedItem().toString();
+                vDensity.setText(densities.get(selectedMaterial).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                vDensity.setText("");
+            }
+
+        });
 
         // Add form elements for this shape
         LinearLayout ll = findViewById(R.id.customFields);
@@ -51,6 +87,8 @@ public class MetalCalculateActivity extends AppCompatActivity {
         for(int i = 0; i < 3; i++) {
             // TODO populate from existing xml
             EditText formElement = new EditText(getApplicationContext());
+            formElement.setHintTextColor(Color.GRAY);
+            formElement.setTextColor(Color.BLACK);
             formElement.setHint("Hello!");
             ll.addView(formElement);
         }
