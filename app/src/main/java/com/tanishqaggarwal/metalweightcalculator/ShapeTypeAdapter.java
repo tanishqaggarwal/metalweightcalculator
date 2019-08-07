@@ -38,7 +38,7 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
     public void onBindViewHolder(ShapeTypeCardHolder shapeTypeCardHolder, int i) {
         ShapeTypeInfo si = shapeTypeInfoList.get(i);
         shapeTypeCardHolder.vShapeName.setText(si.shapeName);
-        shapeTypeCardHolder.vShapeImg.setImageDrawable(si.shapeImg);
+        shapeTypeCardHolder.vShapeImg.setImageResource(si.shapeIcon);
     }
 
     /**
@@ -75,8 +75,10 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Open metal calculator and tell it the shape that was selected
+                    String chosenShape = vShapeName.getText().toString();
                     Intent intent = new Intent(ctx, MetalCalculateActivity.class);
-                    intent.putExtra("shape", vShapeName.getText().toString());
+                    intent.putExtra("shape", chosenShape);
                     ctx.startActivity(intent);
                 }
             });

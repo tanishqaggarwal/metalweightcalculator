@@ -1,10 +1,12 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.shapes.Shape;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,6 +15,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.InputType;
 import android.util.SparseArray;
 import android.util.Xml;
 import android.view.LayoutInflater;
@@ -63,40 +66,56 @@ public class MetalCalculateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_metal_calculate);
 
-        // Get selected shape type and get relevant form elements
+        // Get selected shape type and add image to screen
         Bundle bundle = getIntent().getExtras();
         String shapeType = bundle.getString("shape");
-        System.out.println(shapeType);
+        ShapeTypeInfo shapeData = MainActivity.shapeTypes.get(shapeType);
+        ImageView dimPic = findViewById(R.id.dimPic);
+        dimPic.setImageResource(shapeData.shapeIcon);
+
 
         // Get all form elements
         vDensity = this.findViewById(R.id.densityField);
 
         // Read in JSON data on material densities
-        readDensities();
+        densities = readDensities(getAssets());
         // Add metal types to dropdown and create handler
         createMetalSpinner();
 
         // Add form elements for this shape
         LinearLayout ll = findViewById(R.id.customFields);
-        LayoutInflater li = LayoutInflater.from(getApplicationContext());
-        for(int i = 0; i < 3; i++) {
-            // TODO populate from existing xml
+        for(int i = 0; i < shapeData.shapeFields.size(); i++) {
+            ShapeTypeInfo.ShapeTypeFieldInfo field = shapeData.shapeFields.get(i);
+            String fieldName = field.fieldName;
+            String fieldType = field.fieldType;
+
+            int fieldTypeNum = InputType.TYPE_NUMBER_FLAG_DECIMAL;
+            if (fieldType == "number") {
+                fieldTypeNum = InputType.TYPE_CLASS_NUMBER;
+            }
+            else {
+                System.out.println("Invalid field type for shape input field.");
+            }
+
             EditText formElement = new EditText(getApplicationContext());
             formElement.setHintTextColor(Color.GRAY);
             formElement.setTextColor(Color.BLACK);
-            formElement.setHint("Hello!");
+            formElement.setHint(fieldName);
+            formElement.setInputType(fieldTypeNum);
             ll.addView(formElement);
+
+            // TODO populate spinner
         }
 
         // Initialize photos path
         currentPhotoPath = new ArrayList<>();
     }
 
-    public void readDensities() {
-        densities = new HashMap<>();
+    public static Map<String, Double> readDensities(AssetManager assets) {
+        Map<String, Double> densities = new HashMap<>();
 
         try {
-            InputStream is = getAssets().open("materials.json");
+            InputStream is = assets.open("materials.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -110,14 +129,16 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 double materialDensity = materialPropertyJsonObj.getDouble("density");
                 densities.put(materialName, materialDensity);
             }
+
+            return densities;
         }
         catch (IOException ex) {
             ex.printStackTrace();
-            return;
+            return null;
         }
         catch (JSONException ex) {
             ex.printStackTrace();
-            return;
+            return null;
         }
     }
 

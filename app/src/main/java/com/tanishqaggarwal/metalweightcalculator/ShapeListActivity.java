@@ -28,12 +28,8 @@ public class ShapeListActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        List<ShapeTypeInfo> shapeTypes = new ArrayList<>(ShapeTypeInfo.readShapeData(getAssets(), getApplicationContext()).values());
+        List<ShapeTypeInfo> shapeTypes = new ArrayList<>(MainActivity.shapeTypes.values());
         ShapeTypeAdapter sa = new ShapeTypeAdapter(shapeTypes);
         recList.setAdapter(sa);
     }
-
-    public final String[] longLengthUnits = {"ft", "m"};
-    public final String[] shortLengthUnits = {"mm", "cm", "in"};
-    public final String[] weightUnits = {"kg", "lb"};
 }
