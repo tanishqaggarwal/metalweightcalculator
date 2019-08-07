@@ -1,16 +1,22 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.drawable.Drawable;
-import android.util.Xml;
+import android.graphics.drawable.shapes.Shape;
+import android.support.v4.content.res.ResourcesCompat;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Shape type data.
@@ -50,25 +56,68 @@ public class ShapeTypeInfo {
     }
 
     /**
-     * Reads shape data from XML file and returns it, for consumption by ShapeListActivity.
+     * Reads shape data from JSON file and returns it, for consumption by ShapeListActivity
+     * and MetalCalculateActivity.
      *
      * @param assets AssetManager used to get access to XML file.
      * @return Map from shape name to shape image and field data.
      */
-    public static Map<String, ShapeTypeInfo> readShapeData(AssetManager assets) {
-        XmlPullParser xmlParser = Xml.newPullParser();
+    public static Map<String, ShapeTypeInfo> readShapeData(AssetManager assets, Context ctx) {
+        Map<String, ShapeTypeInfo> shapeTypes = new HashMap<>();
+
         try {
-            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            xmlParser.setInput(assets.open("shape_type_data.xml"), null);
+            InputStream is = assets.open("shape_type_data.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
+
+            JSONArray shapeTypesJsonArray = json.getJSONArray("shapes");
+            for(int i = 0; i < shapeTypesJsonArray.length(); i++) {
+                JSONObject shapeJsonObj = shapeTypesJsonArray.getJSONObject(i);
+                String shapeName = shapeJsonObj.getString("name");
+
+                String shapeIconFilename = shapeJsonObj.getString("icon");
+                String shapeDimPicFilename = shapeJsonObj.getString("dim_pic");
+                int shapeIconResourceId = ctx.getResources().getIdentifier(shapeIconFilename,
+                        "drawable", ctx.getPackageName());
+                int shapeDimPicResourceId = ctx.getResources().getIdentifier(shapeDimPicFilename,
+                        "drawable", ctx.getPackageName());
+                Drawable shapeIcon = ResourcesCompat.getDrawable(ctx.getResources(),
+                        shapeIconResourceId, null);
+                Drawable shapeDimPic = ResourcesCompat.getDrawable(ctx.getResources(),
+                        shapeDimPicResourceId, null);
+
+                JSONArray shapeFieldsJsonArray = shapeJsonObj.getJSONArray("fields");
+                List<ShapeTypeFieldInfo> shapeFields = new LinkedList<>();
+                for(int j = 0; j < shapeFieldsJsonArray.length(); j++) {
+                    JSONObject field = shapeFieldsJsonArray.getJSONObject(j);
+                    String fieldName = field.getString("name");
+                    String fieldType = field.getString("type");
+
+                    JSONArray fieldUnitsJsonArray = field.getJSONArray("units");
+                    List<String> fieldUnits = new LinkedList<>();
+                    for(int k = 0; k < fieldUnitsJsonArray.length(); k++) {
+                        fieldUnits.add(fieldUnitsJsonArray.getString(k));
+                    }
+
+                    shapeFields.add(new ShapeTypeFieldInfo(fieldName, fieldType, fieldUnits));
+                }
+
+                shapeTypes.put(shapeName, new ShapeTypeInfo(shapeName, shapeIcon, shapeDimPic,
+                        shapeFields));
+            }
         }
-        catch(XmlPullParserException e) {
-            System.out.println("XML parser exception");
+        catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        catch(IOException e) {
-            System.out.println("Can't read shape type data file");
+        catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
         }
 
-        // TODO
-        return new HashMap<>();
+        return shapeTypes;
     }
 }

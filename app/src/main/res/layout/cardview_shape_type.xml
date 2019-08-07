@@ -15,11 +15,10 @@
 
         <ImageView
             android:id="@+id/shapeImg"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             card_view:layout_constraintTop_toTopOf="parent"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintWidth_percent="1" />
+            card_view:layout_constraintLeft_toLeftOf="parent" />
 
         <TextView
             android:id="@+id/shapeName"

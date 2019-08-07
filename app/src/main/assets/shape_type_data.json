@@ -1,0 +1,16 @@
+{
+  "shapes" : [
+    {
+      "name" : "Hexagonal Bar",
+      "icon" : "pic1pro",
+      "dim_pic" : "pic2pro",
+      "fields" : [
+        {
+          "name" : "Width (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ]
+    }
+  ]
+}

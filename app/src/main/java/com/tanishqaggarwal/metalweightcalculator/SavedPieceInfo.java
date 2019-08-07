@@ -22,7 +22,10 @@ public class SavedPieceInfo {
      * @param pieceCost
      */
     public SavedPieceInfo(String shapeTypename, String widthDescription, double pieceLength, double pieceWeight, int numPieces, double pieceCost) {
-        this.shapeType = new ShapeTypeInfo(shapeTypename, null, null);
+        // When saving a piece, we don't need the full shape data, so we just save the name.
+        this.shapeType = new ShapeTypeInfo(shapeTypename, null, null, null);
+
+        // We construct the rest of the fields as-is
         this.widthDescription = widthDescription;
         this.pieceLength = pieceLength;
         this.pieceWeight = pieceWeight;

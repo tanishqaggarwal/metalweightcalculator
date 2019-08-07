@@ -1,7 +1,0 @@
-<shapes>
-    <shape type = "Hexagonal Bar" icon="pic1pro" dim_pic="pic2pro">
-        <fields>
-            <field name = "Width (A)" type = "decimal" units = "shortLengthUnits" />
-        </fields>
-    </shape>
-</shapes>

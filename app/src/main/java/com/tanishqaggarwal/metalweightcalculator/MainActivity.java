@@ -12,6 +12,11 @@ import android.view.View;
  */
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Function that is run upon initialization of application.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

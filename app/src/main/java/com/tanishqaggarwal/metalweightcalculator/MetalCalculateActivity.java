@@ -43,6 +43,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
     EditText vDensity;
 
+    /**
+     * Dynamically initialize form elements for the chosen shape.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +102,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
         currentPhotoPath = new ArrayList<>();
     }
 
+    /**
+     * Take picture and associate it with the current metal piece that will be saved.
+     *
+     * @param v
+     */
     public void takePicture(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -120,6 +130,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // TODO link current photo path with current saved piece info object
     }
 
+    /**
+     * Helper function to save image to a file with a unique name.
+     *
+     * @return Reference to file object that was created.
+     * @throws IOException Thrown if image file cannot be created.
+     */
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -136,6 +152,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
         return image;
     }
 
+    /**
+     * Save piece info to local storage so that it can be displayed on the main screen.
+     *
+     * @param v Button that was clicked to save information.
+     */
     public void savePieceInfo(View v) {
         // TODO
 
@@ -143,6 +164,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Read barcode in order to get piece information.
+     *
+     * @param v
+     */
     public void readBarcode(View v) {
         // TODO this is currently dummy code that reads a hardcoded barcode
 
