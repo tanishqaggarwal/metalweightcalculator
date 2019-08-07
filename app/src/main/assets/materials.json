@@ -1,8 +1,12 @@
 {
   "materials" : [
     {
-      "name" : "Steel",
+      "material_name" : "Steel",
       "density" : 9.28
+    },
+    {
+      "material_name" : "Aluminum",
+      "density" : 6.25
     }
   ]
 }

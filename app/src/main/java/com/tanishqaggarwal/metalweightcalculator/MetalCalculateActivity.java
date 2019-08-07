@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.SparseArray;
 import android.util.Xml;
 import android.view.LayoutInflater;
@@ -24,22 +27,29 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class MetalCalculateActivity extends AppCompatActivity {
 
-    ArrayList<String> currentPhotoPath;
-    HashMap<String, Double> densities;
+    List<String> currentPhotoPath;
+    Map<String, Double> densities;
 
     EditText vDensity;
 
@@ -61,30 +71,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // Get all form elements
         vDensity = this.findViewById(R.id.densityField);
 
-        // TODO read from XML
-        densities = new HashMap<>();
-
+        // Read in JSON data on material densities
+        readDensities();
         // Add metal types to dropdown and create handler
-        Spinner spinner = findViewById(R.id.metalSelect);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>(densities.keySet()));
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedMaterial = ((Spinner) selectedItemView).getSelectedItem().toString();
-                vDensity.setText(densities.get(selectedMaterial).toString());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                vDensity.setText("");
-            }
-
-        });
+        createMetalSpinner();
 
         // Add form elements for this shape
         LinearLayout ll = findViewById(R.id.customFields);
@@ -101,6 +91,62 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // Initialize photos path
         currentPhotoPath = new ArrayList<>();
     }
+
+    public void readDensities() {
+        densities = new HashMap<>();
+
+        try {
+            InputStream is = getAssets().open("materials.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
+
+            JSONArray materialProperties = json.getJSONArray("materials");
+            for(int i = 0; i < materialProperties.length(); i++) {
+                JSONObject materialPropertyJsonObj = materialProperties.getJSONObject(i);
+                String materialName = materialPropertyJsonObj.getString("material_name");
+                double materialDensity = materialPropertyJsonObj.getDouble("density");
+                densities.put(materialName, materialDensity);
+            }
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+            return;
+        }
+    }
+
+    public void createMetalSpinner() {
+        Spinner spinner = findViewById(R.id.metalSelect);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new ArrayList<>(densities.keySet()));
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedMaterial = ((AppCompatTextView) selectedItemView).getText().toString();
+                vDensity.setText(densities.get(selectedMaterial).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                vDensity.setText("");
+            }
+        });
+    }
+
 
     /**
      * Take picture and associate it with the current metal piece that will be saved.

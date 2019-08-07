@@ -76,10 +76,13 @@ public class ShapeTypeInfo {
             JSONArray shapeTypesJsonArray = json.getJSONArray("shapes");
             for(int i = 0; i < shapeTypesJsonArray.length(); i++) {
                 JSONObject shapeJsonObj = shapeTypesJsonArray.getJSONObject(i);
-                String shapeName = shapeJsonObj.getString("name");
 
+                // Read raw shape data
+                String shapeName = shapeJsonObj.getString("shape_name");
                 String shapeIconFilename = shapeJsonObj.getString("icon");
                 String shapeDimPicFilename = shapeJsonObj.getString("dim_pic");
+
+                // Convert image filenames into Drawable objects that can be passed around
                 int shapeIconResourceId = ctx.getResources().getIdentifier(shapeIconFilename,
                         "drawable", ctx.getPackageName());
                 int shapeDimPicResourceId = ctx.getResources().getIdentifier(shapeDimPicFilename,
@@ -89,11 +92,12 @@ public class ShapeTypeInfo {
                 Drawable shapeDimPic = ResourcesCompat.getDrawable(ctx.getResources(),
                         shapeDimPicResourceId, null);
 
+                // Read shape fields
                 JSONArray shapeFieldsJsonArray = shapeJsonObj.getJSONArray("fields");
                 List<ShapeTypeFieldInfo> shapeFields = new LinkedList<>();
                 for(int j = 0; j < shapeFieldsJsonArray.length(); j++) {
                     JSONObject field = shapeFieldsJsonArray.getJSONObject(j);
-                    String fieldName = field.getString("name");
+                    String fieldName = field.getString("field_name");
                     String fieldType = field.getString("type");
 
                     JSONArray fieldUnitsJsonArray = field.getJSONArray("units");
