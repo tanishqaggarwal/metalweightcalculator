@@ -9,9 +9,11 @@ import java.util.List;
  */
 public class ShapeTypeInfo {
     protected String shapeName;
-    protected List<ShapeTypeFieldInfo> shapeFields;
     protected int shapeIcon;
     protected int shapeImg;
+    protected String areaCalculation;
+    protected List<ShapeTypeFieldInfo> shapeFields;
+
 
     /**
      * Constructor.
@@ -20,10 +22,11 @@ public class ShapeTypeInfo {
      * @param shapeImg
      * @param shapeFields
      */
-    public ShapeTypeInfo(String shapeName, int shapeIcon, int shapeImg, List<ShapeTypeFieldInfo> shapeFields) {
+    public ShapeTypeInfo(String shapeName, int shapeIcon, int shapeImg, String areaCalculation, List<ShapeTypeFieldInfo> shapeFields) {
         this.shapeName = shapeName;
         this.shapeIcon = shapeIcon;
         this.shapeImg = shapeImg;
+        this.areaCalculation = areaCalculation;
         this.shapeFields = shapeFields;
     }
 

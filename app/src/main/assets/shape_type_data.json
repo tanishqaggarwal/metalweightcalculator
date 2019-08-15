@@ -10,7 +10,8 @@
           "type" : "decimal",
           "units" : ["mm","cm","in"]
         }
-      ]
+      ],
+      "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }"
     }
   ]
 }

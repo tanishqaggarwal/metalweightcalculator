@@ -29,4 +29,5 @@ dependencies {
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.google.android.gms:play-services:7.8+'
+    implementation group: 'org.mozilla', name: 'rhino', version: '1.7.10'
 }

@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,9 +31,22 @@ public class MainActivity extends AppCompatActivity {
     static boolean loadedShapeData = false;
     static HashMap<String, ShapeTypeInfo> shapeTypes;
 
-    public static final String[] longLengthUnits = {"ft", "m"};
-    public static final String[] shortLengthUnits = {"mm", "cm", "in"};
-    public static final String[] weightUnits = {"kg", "lb"};
+    public static Map<String, Double> lengthUnits;
+    public static Map<String, Double> weightUnits;
+
+    public static void populateUnitConversions() {
+        lengthUnits = new HashMap<>();
+        weightUnits = new HashMap<>();
+
+        lengthUnits.put("ft", 304.8);
+        lengthUnits.put("m", 1000.0);
+        lengthUnits.put("mm", 1.0);
+        lengthUnits.put("cm", 100.0);
+        lengthUnits.put("in", 25.4);
+
+        weightUnits.put("kg", 1.0);
+        weightUnits.put("lb", 0.4536);
+    }
 
     /**
      * Function that is run upon initialization of application.
@@ -43,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        populateUnitConversions();
 
         // Read available shape types and make the data available to all classes
         // via the static class variables
@@ -60,13 +76,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Populate saved pieces with saved app data
         // TODO remove after adding real data
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 12, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 10, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 13, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 124, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 125, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 121, 12, 12, 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape", "Width: 12 in", 11, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 12, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 10, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 13, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 124, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 125, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 121, 12, 12, 12));
+        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+                "Width: 12 in", 11, 12, 12, 12));
     }
 
     /**
@@ -113,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 String shapeName = shapeJsonObj.getString("shape_name");
                 String shapeIconFilename = shapeJsonObj.getString("icon");
                 String shapeDimPicFilename = shapeJsonObj.getString("dim_pic");
+                String shapeVolumeCalculation = shapeJsonObj.getString("area_calc");
 
                 // Convert image filenames into Drawable objects that can be passed around
                 int shapeIconResourceId = ctx.getResources().getIdentifier(shapeIconFilename,
@@ -130,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
 
                     // Validate field type
                     if (!fieldType.equals("number") && !fieldType.equals("decimal")) {
-                        throw new JSONException("Invalid field type for field: " + fieldName + ". Field type was: " + fieldType);
+                        throw new JSONException("Invalid field type for field: " + fieldName +
+                                ". Field type was: " + fieldType);
                     }
 
                     JSONArray fieldUnitsJsonArray = field.getJSONArray("units");
@@ -140,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Validate units
+                    List<String> lengthUnitList = Arrays.asList(lengthUnits.keySet().toArray(new String[0]));
+                    List<String> weightUnitList = Arrays.asList(weightUnits.keySet().toArray(new String[0]));
                     for(String unit : fieldUnits) {
-                        if(!Arrays.asList(longLengthUnits).contains(unit)
-                                && !Arrays.asList(shortLengthUnits).contains(unit)
-                                && !Arrays.asList(weightUnits).contains(unit)) {
+                        if(!lengthUnitList.contains(unit) && !weightUnitList.contains(unit)) {
                             throw new JSONException("Invalid field units");
                         }
                     }
@@ -154,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Construct final shape type and add it to list
                 shapeTypes.put(shapeName, new ShapeTypeInfo(shapeName, shapeIconResourceId,
-                        shapeDimPicResourceId, shapeFields));
+                        shapeDimPicResourceId, shapeVolumeCalculation, shapeFields));
 
             }
 
