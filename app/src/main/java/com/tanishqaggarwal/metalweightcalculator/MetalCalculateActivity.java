@@ -16,7 +16,6 @@ import android.support.v7.widget.AppCompatTextView;
 import android.text.InputType;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -54,6 +53,9 @@ public class MetalCalculateActivity extends AppCompatActivity {
     // Mappings from shape's fields to form elements created for the fields
     Map<ShapeTypeInfo.ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
     Map<ShapeTypeInfo.ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
+
+    // Manages calculation UI elements and computation based on selected radio button
+    RadioViewController calculationController;
 
     // All photos taken in the current session
     List<String> currentPhotoPath;
@@ -93,7 +95,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // Add form elements for this shape
         shapeFieldSelectedValues = new HashMap<>();
         shapeFieldSelectedUnits = new HashMap<>();
-        LinearLayout fieldsView = findViewById(R.id.fieldsView);
+        LinearLayout fieldsView = findViewById(R.id.shapeFieldsView);
         for(int i = 0; i < shapeData.shapeFields.size(); i++) {
 
             View fieldView = getLayoutInflater().inflate(R.layout.shape_field, null);
@@ -143,7 +145,8 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
         // Add radio button listener and set default option to be "calculate by length"
         RadioGroup radioGroup = findViewById(R.id.calculationOptionRadioGroup);
-        radioGroup.setOnCheckedChangeListener(new RadioViewController(this));
+        calculationController = new RadioViewController(this);
+        radioGroup.setOnCheckedChangeListener(calculationController);
         radioGroup.check(R.id.calculateByLengthRadioBtn);
     }
 
@@ -301,31 +304,50 @@ public class MetalCalculateActivity extends AppCompatActivity {
         Object[] calculationArgList = fieldValues.toArray();
         double area = runAreaCalculation(shapeData.areaCalculation, calculationArgList);
 
-        // Values used in calculation
-        double density = Double.parseDouble(vDensity.getText().toString());
-        double volume_per_piece = 0.0;
-        double length_per_piece = 1.0;
-        double mass_per_piece = 0.0;
+        // Inputs and outputs of calculation.
+        double density;
+        try {
+            density = Double.parseDouble(vDensity.getText().toString());
+        }
+        catch(NumberFormatException e) {
+            e.printStackTrace();
+            density = 0;
+        }
+        double kg_price = 1.0;
+        int num_pieces = 1;
 
-        // Get calculation option
+        double price_per_piece = 0;
+        double volume_per_piece = 0;
+        double mass_per_piece = 0;
+        double total_mass = 0;
+        double total_price = 0;
+        String results_str;
+
+        // Get calculation option and run calculation with field inputs
         RadioGroup calculationOptionRadioGroup = findViewById(R.id.calculationOptionRadioGroup);
         int selectedCalculation = calculationOptionRadioGroup.getCheckedRadioButtonId();
         switch(selectedCalculation) {
             case R.id.calculateByLengthRadioBtn:
                 // Compute volume
-                length_per_piece = 1.0; // TODO replace with field
+                double length_per_piece = 1.0; // TODO replace with field
                 volume_per_piece = length_per_piece * area;
                 mass_per_piece = volume_per_piece * density;
+                price_per_piece = kg_price * mass_per_piece;
+                total_price = price_per_piece * num_pieces;
+                total_mass = mass_per_piece * num_pieces;
                 break;
             case R.id.calculateByWeightRadioBtn:
                 mass_per_piece = 1.0; // TODO replace with field
                 volume_per_piece = mass_per_piece / density;
                 length_per_piece = volume_per_piece / area;
+                total_mass = mass_per_piece * num_pieces;
                 break;
         }
 
         // TODO add values to saved piece info
         System.out.println(area);
+        System.out.println(total_mass);
+        System.out.println(total_price);
     }
 
     /**

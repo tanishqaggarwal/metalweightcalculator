@@ -83,22 +83,39 @@
         app:layout_constraintHeight_percent=".1" />
 
     <LinearLayout
-        android:id="@+id/fieldsView"
+        android:orientation="vertical"
+        android:id="@+id/allFieldsView"
+        android:layout_gravity="top"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintTop_toBottomOf="@+id/densityField"
-        app:layout_constraintBottom_toTopOf="@+id/optionFieldsView"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/densityField"
+        app:layout_constraintBottom_toTopOf="@id/resultsText">
+
+        <LinearLayout
+            android:id="@+id/shapeFieldsView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/optionFieldsView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>
+
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/optionFieldsView"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        app:layout_constraintTop_toBottomOf="@+id/fieldsView"
+    <TextView
+        android:id="@+id/resultsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Results: 0 lb"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
         app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
-        android:orientation="vertical">
-    </LinearLayout>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHeight_percent=".1"/>
 
     <Button
         android:id="@+id/calculateBtn"
@@ -122,14 +139,5 @@
         app:layout_constraintWidth_percent=".5"
         app:layout_constraintHeight_percent=".1"/>
 
-    <TextView
-        android:id="@+id/resultsText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Results: 0 lb"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHeight_percent=".1"/>
 
 </android.support.constraint.ConstraintLayout>
