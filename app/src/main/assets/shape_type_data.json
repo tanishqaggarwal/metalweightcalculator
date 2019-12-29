@@ -13,6 +13,7 @@
       ],
       "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }"
     },
+
     {
       "shape_name" : "Round Bar",
       "icon" : "pic2pro",
