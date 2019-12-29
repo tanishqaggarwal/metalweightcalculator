@@ -69,9 +69,7 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
             super(v);
             vShapeName = v.findViewById(R.id.shapeName);
             vShapeImg = v.findViewById(R.id.shapeImg);
-
             final Context ctx = v.getContext();
-
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

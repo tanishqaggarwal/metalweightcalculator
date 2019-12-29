@@ -2,7 +2,6 @@ package com.tanishqaggarwal.metalweightcalculator;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -26,7 +25,6 @@ import android.widget.Spinner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,16 +37,9 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import static com.tanishqaggarwal.metalweightcalculator.MainActivity.lengthUnits;
-import static com.tanishqaggarwal.metalweightcalculator.MainActivity.weightUnits;
-
 public class MetalCalculateActivity extends AppCompatActivity {
     // Metadata of currently displayed shape
-    ShapeTypeInfo shapeData;
+    ShapeTypeInfo currShapeData;
 
     // Mappings from shape's fields to form elements created for the fields
     Map<ShapeTypeInfo.ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
@@ -56,13 +47,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
     // Manages calculation UI elements and computation based on selected radio button
     RadioViewController calculationController;
-
     // All photos taken in the current session
     List<String> currentPhotoPath;
-
     // Densities used by density spinner
     Map<String, Double> densities;
-
     // Editable density field
     EditText vDensity;
 
@@ -79,16 +67,15 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // Get selected shape type and add image to screen
         Bundle bundle = getIntent().getExtras();
         String shapeType = bundle.getString("shape");
-        shapeData = MainActivity.shapeTypes.get(shapeType);
+        currShapeData = CacheConstants.shapeTypes.get(shapeType);
         ImageView dimPic = findViewById(R.id.dimPic);
-        dimPic.setImageResource(shapeData.shapeIcon);
-
+        dimPic.setImageResource(currShapeData.shapeDimPic);
 
         // Get all form elements
         vDensity = this.findViewById(R.id.densityField);
 
         // Read in JSON data on material densities
-        densities = readDensities(getAssets());
+        densities = CacheConstants.readDensities(getAssets());
         // Add metal types to dropdown and create handler
         createMetalSpinner();
 
@@ -96,10 +83,9 @@ public class MetalCalculateActivity extends AppCompatActivity {
         shapeFieldSelectedValues = new HashMap<>();
         shapeFieldSelectedUnits = new HashMap<>();
         LinearLayout fieldsView = findViewById(R.id.shapeFieldsView);
-        for(int i = 0; i < shapeData.shapeFields.size(); i++) {
-
+        for(int i = 0; i < currShapeData.shapeFields.size(); i++) {
             View fieldView = getLayoutInflater().inflate(R.layout.shape_field, null);
-            ShapeTypeInfo.ShapeTypeFieldInfo field = shapeData.shapeFields.get(i);
+            ShapeTypeInfo.ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
 
             String fieldName = field.fieldName;
             String fieldType = field.fieldType;
@@ -115,7 +101,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 System.out.println("Invalid field type for shape input field.");
                 return;
             }
-
             // Set input field values
             EditText numericInput = fieldView.findViewById(R.id.fieldData);
             numericInput.setHintTextColor(Color.GRAY);
@@ -150,42 +135,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
         radioGroup.check(R.id.calculateByLengthRadioBtn);
     }
 
-    /**
-     * Read densities from JSON file to populate into material selection option.
-     *
-     * @param assets Asset Manager that will provide the JSON file.
-     * @return Map from material name to density.
-     */
-    public static Map<String, Double> readDensities(AssetManager assets) {
-        Map<String, Double> densities = new HashMap<>();
-
-        try {
-            InputStream is = assets.open("materials.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
-
-            JSONArray materialProperties = json.getJSONArray("materials");
-            for(int i = 0; i < materialProperties.length(); i++) {
-                JSONObject materialPropertyJsonObj = materialProperties.getJSONObject(i);
-                String materialName = materialPropertyJsonObj.getString("material_name");
-                double materialDensity = materialPropertyJsonObj.getDouble("density");
-                densities.put(materialName, materialDensity);
-            }
-
-            return densities;
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
 
     /**
      * Create metal choice selector.
@@ -199,23 +148,19 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 new ArrayList<>(densities.keySet()));
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinner.setAdapter(adapter);
-
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String selectedMaterial = ((AppCompatTextView) selectedItemView).getText().toString();
                 vDensity.setText(densities.get(selectedMaterial).toString());
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 vDensity.setText("");
             }
         });
     }
-
 
     /**
      * Take picture and associate it with the current metal piece that will be saved.
@@ -241,7 +186,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 startActivityForResult(takePictureIntent, 1);
             }
         }
-
         // TODO link current photo path with current saved piece info object
     }
 
@@ -261,7 +205,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 ".jpg",  /* suffix */
                 storageDir      /* directory */
         );
-
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath.add(image.getAbsolutePath());
         return image;
@@ -274,7 +217,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
     public void savePieceInfo(View v) {
         // TODO
-
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -286,7 +228,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
     public void calculatePieceInfo(View v) {
         List<Object> fieldValues = new LinkedList<>();
-        for(ShapeTypeInfo.ShapeTypeFieldInfo fInfo : shapeData.shapeFields) {
+        for(ShapeTypeInfo.ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
             // Get unit-adjusted value of field
             double fieldValue;
             try {
@@ -296,13 +238,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 e.printStackTrace();
                 fieldValue = 0;
             }
-
             String fieldUnits = shapeFieldSelectedUnits.get(fInfo).getSelectedItem().toString();
-            fieldValue *= lengthUnits.get(fieldUnits);
+            fieldValue *= CacheConstants.lengthUnits.get(fieldUnits);
             fieldValues.add(fieldValue);
         }
         Object[] calculationArgList = fieldValues.toArray();
-        double area = runAreaCalculation(shapeData.areaCalculation, calculationArgList);
+        double area = runAreaCalculation(currShapeData.areaCalculation, calculationArgList);
 
         // Inputs and outputs of calculation.
         double density;
@@ -315,7 +256,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
         }
         double kg_price = 1.0;
         int num_pieces = 1;
-
         double price_per_piece = 0;
         double volume_per_piece = 0;
         double mass_per_piece = 0;
@@ -377,7 +317,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
         finally {
             org.mozilla.javascript.Context.exit();
         }
-
         return area;
     }
 
@@ -453,7 +392,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
             Spinner unitInput = lengthView.findViewById(R.id.fieldUnits);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(ctx,
                     android.R.layout.simple_spinner_dropdown_item,
-                    lengthUnits.keySet().toArray(new String[0]));
+                    CacheConstants.lengthUnits.keySet().toArray(new String[0]));
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             unitInput.setAdapter(adapter);
             viewList.add(lengthView);
@@ -480,7 +419,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
             Spinner unitInput = massView.findViewById(R.id.fieldUnits);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(ctx,
                     android.R.layout.simple_spinner_dropdown_item,
-                    weightUnits.keySet().toArray(new String[0]));
+                    CacheConstants.weightUnits.keySet().toArray(new String[0]));
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             unitInput.setAdapter(adapter);
             viewList.add(massView);

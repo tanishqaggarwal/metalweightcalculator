@@ -28,7 +28,7 @@ public class ShapeListActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        List<ShapeTypeInfo> shapeTypes = new ArrayList<>(MainActivity.shapeTypes.values());
+        List<ShapeTypeInfo> shapeTypes = new ArrayList<>(CacheConstants.shapeTypes.values());
         ShapeTypeAdapter sa = new ShapeTypeAdapter(shapeTypes);
         recList.setAdapter(sa);
     }
