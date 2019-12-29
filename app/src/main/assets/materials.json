@@ -1,12 +1,131 @@
 {
   "materials" : [
     {
-      "material_name" : "Steel",
-      "density" : 9.28
+      "material_name" : "Stainless Steel" ,
+      "density_gcm" : 7.48 ,
+      "density_kgm" : 7480 ,
+      "density_lbft" : 466.752 ,
+      "density_lbin" : 0.27022996
+    },
+
+    {
+      "material_name" : "Aluminum" ,
+      "density_gcm" : 2.6 ,
+      "density_kgm" : 2600 ,
+      "density_lbft" : 162.24,
+      "density_lbin" : 0.0939302
     },
     {
-      "material_name" : "Aluminum",
-      "density" : 6.25
+      "material_name" : "Aluminum - 1100" ,
+      "density_gcm" : 2.7 ,
+      "density_kgm" : 2720 ,
+      "density_lbft" : 169.728,
+      "density_lbin" : 0.09826544
+    },
+    {
+      "material_name" : "Aluminum - 6061" ,
+      "density_gcm" : 2.7 ,
+      "density_kgm" : 2720 ,
+      "density_lbft" : 169.728,
+      "density_lbin" : 0.09826544
+    },
+    {
+      "material_name" : "Aluminum - 7050" ,
+      "density_gcm" : 2.8 ,
+      "density_kgm" : 2800 ,
+      "density_lbft" : 174.72,
+      "density_lbin" : 0.1011556
+    },
+    {
+      "material_name" : "Aluminum - 7178" ,
+      "density_gcm" : 2.8 ,
+      "density_kgm" : 2830 ,
+      "density_lbft" : 176.592,
+      "density_lbin" : 0.10223941
+    },
+    {
+      "material_name" : "Iron" ,
+      "density_gcm" : 7.87 ,
+      "density_kgm" : 7870 ,
+      "density_lbft" : 491.088,
+      "density_lbin" : 0.28431949
+    },
+    {
+      "material_name" : "Wrought Iron" ,
+      "density_gcm" : 7.74 ,
+      "density_kgm" : 7740 ,
+      "density_lbft" : 482.976,
+      "density_lbin" : 0.27962298
+    },
+    {
+      "material_name" : "Copper" ,
+      "density_gcm" : 8.96 ,
+      "density_kgm" : 8960 ,
+      "density_lbft" : 559.104,
+      "density_lbin" : 0.32369792
+    },
+    {
+      "material_name" : "Brass " ,
+      "density_gcm" : 8.5 ,
+      "density_kgm" : 8500 ,
+      "density_lbft" : 530.4,
+      "density_lbin" : 0.3070795
+    },
+    {
+      "material_name" : "Brass 60/40" ,
+      "density_gcm" : 8.52 ,
+      "density_kgm" : 8520 ,
+      "density_lbft" : 531.648,
+      "density_lbin" : 0.30780204
+    },
+    {
+      "material_name" : "Red Brass" ,
+      "density_gcm" : 8.75 ,
+      "density_kgm" : 8720 ,
+      "density_lbft" : 544.128,
+      "density_lbin" : 0.31502744
+    },
+    {
+      "material_name" : "Yellow Brass" ,
+      "density_gcm" : 8.47 ,
+      "density_kgm" : 8470 ,
+      "density_lbft" : 528.528,
+      "density_lbin" : 0.30599569
+    },
+    {
+      "material_name" : "Hatelloy" ,
+      "density_gcm" : 9.25 ,
+      "density_kgm" : 9250 ,
+      "density_lbft" : 577.2,
+      "density_lbin" : 0.33417475
+    },
+    {
+      "material_name" : "Inconel" ,
+      "density_gcm" : 8.5 ,
+      "density_kgm" : 8500 ,
+      "density_lbft" : 530.4,
+      "density_lbin" : 0.3070795
+    },
+    {
+      "material_name" : "Incoloy" ,
+      "density_gcm" : 8.03 ,
+      "density_kgm" : 8003 ,
+      "density_lbft" : 499.3872,
+      "density_lbin" : 0.289124381
+    },
+    {
+      "material_name" : "Monel" ,
+      "density_gcm" : 8.37 ,
+      "density_kgm" : 8370 ,
+      "density_lbft" : 522.288,
+      "density_lbin" : 0.30238299
+    },
+    {
+      "material_name" : "Titanium" ,
+      "density_gcm" : 4.51 ,
+      "density_kgm" : 4510 ,
+      "density_lbft" : 281.424,
+      "density_lbin" : 0.16293277
     }
   ]
 }
