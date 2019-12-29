@@ -1,6 +1,5 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
-import android.graphics.drawable.Drawable;
 import java.util.List;
 
 
@@ -8,9 +7,10 @@ import java.util.List;
  * Shape type data.
  */
 public class ShapeTypeInfo {
+
     protected String shapeName;
     protected int shapeIcon;
-    protected int shapeImg;
+    protected int shapeDimPic;
     protected String areaCalculation;
     protected List<ShapeTypeFieldInfo> shapeFields;
 
@@ -19,13 +19,13 @@ public class ShapeTypeInfo {
      * Constructor.
      *
      * @param shapeName
-     * @param shapeImg
+     * @param shapeDimPic
      * @param shapeFields
      */
-    public ShapeTypeInfo(String shapeName, int shapeIcon, int shapeImg, String areaCalculation, List<ShapeTypeFieldInfo> shapeFields) {
+    public ShapeTypeInfo(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation, List<ShapeTypeFieldInfo> shapeFields) {
         this.shapeName = shapeName;
         this.shapeIcon = shapeIcon;
-        this.shapeImg = shapeImg;
+        this.shapeDimPic = shapeDimPic;
         this.areaCalculation = areaCalculation;
         this.shapeFields = shapeFields;
     }
