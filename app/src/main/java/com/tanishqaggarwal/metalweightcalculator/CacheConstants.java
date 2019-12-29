@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class CacheConstants {
     public static HashMap<String, ShapeTypeInfo> shapeTypes;
-    public static Map<String, Double> densities;
+    public static Map<String, Double> metalData;
     public static final Map<String, Double> lengthUnits;
     public static final Map<String, Double> weightUnits;
 
@@ -36,17 +36,17 @@ public class CacheConstants {
     }
 
     /**
-     * Read densities from JSON file to populate into material selection option.
+     * Read metalData from JSON file to populate into material selection option.
      *
      * @param assets Asset Manager that will provide the JSON file.
      * @return Map from material name to density.
      */
     public static Map<String, Double> readDensities(AssetManager assets) {
-        if(null != densities){
-            return densities;
+        if(null != metalData){
+            return metalData;
         }
-        densities = new HashMap<>();
-        Map<String, Double> densities = CacheConstants.densities;
+        metalData = new HashMap<>();
+        Map<String, Double> metalData = CacheConstants.metalData;
         try {
             InputStream is = assets.open("materials.json");
             int size = is.available();
@@ -60,9 +60,9 @@ public class CacheConstants {
                 JSONObject materialPropertyJsonObj = materialProperties.getJSONObject(i);
                 String materialName = materialPropertyJsonObj.getString("material_name");
                 double materialDensity = materialPropertyJsonObj.getDouble("density");
-                densities.put(materialName, materialDensity);
+                metalData.put(materialName, materialDensity);
             }
-            return densities;
+            return metalData;
         }
         catch (IOException ex) {
             ex.printStackTrace();
