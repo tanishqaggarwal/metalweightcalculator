@@ -3,7 +3,7 @@
     {
       "shape_name" : "Hexagonal Bar",
       "icon" : "pic1pro",
-      "dim_pic" : "pic2pro",
+      "dim_pic" : "altikose",
       "fields" : [
         {
           "field_name" : "Width (A)",
@@ -12,6 +12,206 @@
         }
       ],
       "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }"
+    },
+    {
+      "shape_name" : "Round Bar",
+      "icon" : "pic2pro",
+      "dim_pic" : "yuvarlakdolu",
+      "fields" : [
+        {
+          "field_name" : "Diameter (D)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Pipe",
+      "icon" : "pic3pro",
+      "dim_pic" : "boru",
+      "fields" : [
+        {
+          "field_name" : "Diameter (D)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Square Bar",
+      "icon" : "pic4pro",
+      "dim_pic" : "karedolu",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Square Tubing",
+      "icon" : "pic5pro",
+      "dim_pic" : "kareprofil",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "T Bar",
+      "icon" : "pic6pro",
+      "dim_pic" : "tprofil",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Beam",
+      "icon" : "pic7pro",
+      "dim_pic" : "hd_eu",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (S)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Channel",
+      "icon" : "pic8pro",
+      "dim_pic" : "channel_usa_steel_stndrd",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (S)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Angle",
+      "icon" : "pic10pro",
+      "dim_pic" : "alum_angle_6063_usa",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Flat Bar",
+      "icon" : "pic9pro",
+      "dim_pic" : "plate",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Sheet",
+      "icon" : "pic11pro",
+      "dim_pic" : "sheet",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["mm","cm","in"]
+        }
+      ],
+      "area_calc" : ""
     }
   ]
 }
