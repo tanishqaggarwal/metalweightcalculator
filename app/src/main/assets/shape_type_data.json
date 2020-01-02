@@ -8,12 +8,11 @@
         {
           "field_name" : "Width (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }"
     },
-
     {
       "shape_name" : "Round Bar",
       "icon" : "pic2pro",
@@ -22,7 +21,7 @@
         {
           "field_name" : "Diameter (D)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -35,12 +34,12 @@
         {
           "field_name" : "Diameter (D)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (T)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -53,7 +52,7 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -66,12 +65,12 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -84,17 +83,17 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (T)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -107,22 +106,22 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (T)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (S)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -135,22 +134,22 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (T)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (S)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -163,17 +162,17 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Thickness (T)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -186,12 +185,12 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
@@ -204,15 +203,112 @@
         {
           "field_name" : "Side (A)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
         },
         {
           "field_name" : "Side (B)",
           "type" : "decimal",
-          "units" : ["mm","cm","in"]
+          "units" : ["in", "ft", "mm","cm"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Plate",
+      "icon" : "pic9pro",
+      "dim_pic" : "plate",
+      "fields" : [
+        {
+          "field_name" : "Side (A)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Side (B)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Coil",
+      "icon" : "pic12pro",
+      "dim_pic" : "coil",
+      "fields" : [
+        {
+          "field_name" : "Width (W)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Internal Diameter (ID)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Outer Diameter (OD)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Wire",
+      "icon" : "pic13pro",
+      "dim_pic" : "boru",
+      "fields" : [
+        {
+          "field_name" : "Diameter (D)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        }
+
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Wire Rod",
+      "icon" : "pic14pro",
+      "dim_pic" : "coil",
+      "fields" : [
+        {
+          "field_name" : "Width (W)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Internal Diameter (ID)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Outer Diameter (OD)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
+        }
+      ],
+      "area_calc" : ""
+    },
+    {
+      "shape_name" : "Re Bar",
+      "icon" : "pic2pro",
+      "dim_pic" : "yuvarlakdolu",
+      "fields" : [
+        {
+          "field_name" : "Diameter (D)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
       "area_calc" : ""
     }
+
   ]
 }
