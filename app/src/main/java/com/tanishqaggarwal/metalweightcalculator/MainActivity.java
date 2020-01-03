@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         CacheConstants.readShapeData(getAssets(), getApplicationContext());
 
         // Create recycler view for saved pieces
-        RecyclerView recList = findViewById(R.id.savedPiecesList);
+        RecyclerView recList = findViewById(R.id.savedPiecesListView);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -39,19 +39,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Populate saved pieces with saved app data
         // TODO remove after adding real data
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+        sa.savedPiecesList.add(new SavedPiece("shape",
                 "Width: 12 in", 12, 12, 12,
                 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+        sa.savedPiecesList.add(new SavedPiece("shape",
                 "Width: 12 in", 124, 12, 12,
                 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+        sa.savedPiecesList.add(new SavedPiece("shape",
                 "Width: 12 in", 125, 12, 12,
                 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+        sa.savedPiecesList.add(new SavedPiece("shape",
                 "Width: 12 in", 121, 12, 12,
                 12));
-        sa.savedPieceInfoList.add(new SavedPieceInfo("shape",
+        sa.savedPiecesList.add(new SavedPiece("shape",
                 "Width: 12 in", 11, 12, 12,
                 12));
     }

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Shape type data.
  */
-public class ShapeTypeInfo {
+public class ShapeType {
 
     protected String shapeName;
     protected int shapeIcon;
@@ -22,7 +22,8 @@ public class ShapeTypeInfo {
      * @param shapeDimPic
      * @param shapeFields
      */
-    public ShapeTypeInfo(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation, List<ShapeTypeFieldInfo> shapeFields) {
+    public ShapeType(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation,
+                     List<ShapeTypeFieldInfo> shapeFields) {
         this.shapeName = shapeName;
         this.shapeIcon = shapeIcon;
         this.shapeDimPic = shapeDimPic;

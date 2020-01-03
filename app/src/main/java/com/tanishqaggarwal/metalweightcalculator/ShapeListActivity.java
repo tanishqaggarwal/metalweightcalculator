@@ -1,19 +1,11 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class ShapeListActivity extends AppCompatActivity {
@@ -28,7 +20,7 @@ public class ShapeListActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        List<ShapeTypeInfo> shapeTypes = new ArrayList<>(CacheConstants.shapeTypes.values());
+        List<ShapeType> shapeTypes = new ArrayList<>(CacheConstants.shapeTypes.values());
         ShapeTypeAdapter sa = new ShapeTypeAdapter(shapeTypes);
         recList.setAdapter(sa);
     }

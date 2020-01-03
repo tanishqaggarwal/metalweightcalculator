@@ -3,8 +3,8 @@ package com.tanishqaggarwal.metalweightcalculator;
 /**
  * Data of a saved metal piece.
  */
-public class SavedPieceInfo {
-    protected ShapeTypeInfo shapeType;
+public class SavedPiece {
+    protected ShapeType shapeType;
     protected String widthDescription;
     protected double pieceLength; // mm
     protected double pieceWeight; // kg
@@ -21,9 +21,11 @@ public class SavedPieceInfo {
      * @param numPieces
      * @param pieceCost
      */
-    public SavedPieceInfo(String shapeTypename, String widthDescription, double pieceLength, double pieceWeight, int numPieces, double pieceCost) {
+    public SavedPiece(String shapeTypename, String widthDescription, double pieceLength,
+                      double pieceWeight, int numPieces, double pieceCost) {
         // When saving a piece, we don't need the full shape data, so we just save the name.
-        this.shapeType = new ShapeTypeInfo(shapeTypename, 0, 0, null, null);
+        this.shapeType = new ShapeType(shapeTypename, 0, 0,
+                null, null);
         // We construct the rest of the fields as-is
         this.widthDescription = widthDescription;
         this.pieceLength = pieceLength;

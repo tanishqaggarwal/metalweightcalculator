@@ -2,7 +2,6 @@ package com.tanishqaggarwal.metalweightcalculator;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +16,15 @@ import java.util.List;
  */
 public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.ShapeTypeCardHolder> {
 
-    List<ShapeTypeInfo> shapeTypeInfoList;
+    List<ShapeType> shapeTypeList;
 
-    public ShapeTypeAdapter(List<ShapeTypeInfo> shapeTypeInfoList) {
-        this.shapeTypeInfoList = shapeTypeInfoList;
+    public ShapeTypeAdapter(List<ShapeType> shapeTypeList) {
+        this.shapeTypeList = shapeTypeList;
     }
 
     @Override
     public int getItemCount() {
-        return shapeTypeInfoList.size();
+        return shapeTypeList.size();
     }
 
     /**
@@ -36,7 +35,7 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
      */
     @Override
     public void onBindViewHolder(ShapeTypeCardHolder shapeTypeCardHolder, int i) {
-        ShapeTypeInfo si = shapeTypeInfoList.get(i);
+        ShapeType si = shapeTypeList.get(i);
         shapeTypeCardHolder.vShapeName.setText(si.shapeName);
         shapeTypeCardHolder.vShapeImg.setImageResource(si.shapeIcon);
     }

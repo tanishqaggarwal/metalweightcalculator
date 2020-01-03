@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CacheConstants {
-    public static HashMap<String, ShapeTypeInfo> shapeTypes;
+    public static HashMap<String, ShapeType> shapeTypes;
     public static Map<String, Double> metalData;
     public static final Map<String, Double> lengthUnits;
     public static final Map<String, Double> weightUnits;
@@ -94,7 +94,7 @@ public class CacheConstants {
             is.close();
             JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
 
-            HashMap<String, ShapeTypeInfo> shapeTypes = CacheConstants.shapeTypes;
+            HashMap<String, ShapeType> shapeTypes = CacheConstants.shapeTypes;
             JSONArray shapeTypesJsonArray = json.getJSONArray("shapes");
             for(int i = 0; i < shapeTypesJsonArray.length(); i++) {
                 JSONObject shapeJsonObj = shapeTypesJsonArray.getJSONObject(i);
@@ -113,7 +113,7 @@ public class CacheConstants {
 
                 // Read shape fields
                 JSONArray shapeFieldsJsonArray = shapeJsonObj.getJSONArray("fields");
-                List<ShapeTypeInfo.ShapeTypeFieldInfo> shapeFields = new LinkedList<>();
+                List<ShapeType.ShapeTypeFieldInfo> shapeFields = new LinkedList<>();
                 for(int j = 0; j < shapeFieldsJsonArray.length(); j++) {
                     JSONObject field = shapeFieldsJsonArray.getJSONObject(j);
                     String fieldName = field.getString("field_name");
@@ -131,18 +131,20 @@ public class CacheConstants {
                         fieldUnits.add(fieldUnitsJsonArray.getString(k));
                     }
                     // Validate units
-                    List<String> lengthUnitList = Arrays.asList(CacheConstants.lengthUnits.keySet().toArray(new String[0]));
-                    List<String> weightUnitList = Arrays.asList(CacheConstants.weightUnits.keySet().toArray(new String[0]));
+                    List<String> lengthUnitList = Arrays.asList(
+                            CacheConstants.lengthUnits.keySet().toArray(new String[0]));
+                    List<String> weightUnitList = Arrays.asList(
+                            CacheConstants.weightUnits.keySet().toArray(new String[0]));
                     for(String unit : fieldUnits) {
                         if(!lengthUnitList.contains(unit) && !weightUnitList.contains(unit)) {
                             throw new JSONException("Invalid field units");
                         }
                     }
-                    shapeFields.add(new ShapeTypeInfo.ShapeTypeFieldInfo(fieldName, fieldType,
+                    shapeFields.add(new ShapeType.ShapeTypeFieldInfo(fieldName, fieldType,
                             fieldUnits));
                 }
                 // Construct final shape type and add it to list
-                shapeTypes.put(shapeName, new ShapeTypeInfo(shapeName, shapeIconResourceId,
+                shapeTypes.put(shapeName, new ShapeType(shapeName, shapeIconResourceId,
                         shapeDimPicResourceId, shapeVolumeCalculation, shapeFields));
             }
         }

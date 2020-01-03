@@ -39,11 +39,11 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 public class MetalCalculateActivity extends AppCompatActivity {
     // Metadata of currently displayed shape
-    ShapeTypeInfo currShapeData;
+    ShapeType currShapeData;
 
     // Mappings from shape's fields to form elements created for the fields
-    Map<ShapeTypeInfo.ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
-    Map<ShapeTypeInfo.ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
+    Map<ShapeType.ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
+    Map<ShapeType.ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
 
     // Manages calculation UI elements and computation based on selected radio button
     RadioViewController calculationController;
@@ -85,7 +85,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         LinearLayout fieldsView = findViewById(R.id.shapeFieldsView);
         for(int i = 0; i < currShapeData.shapeFields.size(); i++) {
             View fieldView = getLayoutInflater().inflate(R.layout.shape_field, null);
-            ShapeTypeInfo.ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
+            ShapeType.ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
 
             String fieldName = field.fieldName;
             String fieldType = field.fieldType;
@@ -151,8 +151,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedMaterial = ((AppCompatTextView) selectedItemView).getText().toString();
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView,
+                                       int position, long id) {
+                String selectedMaterial =
+                        ((AppCompatTextView) selectedItemView).getText().toString();
                 vDensity.setText(densities.get(selectedMaterial).toString());
             }
             @Override
@@ -228,11 +230,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
     public void calculatePieceInfo(View v) {
         List<Object> fieldValues = new LinkedList<>();
-        for(ShapeTypeInfo.ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
+        for(ShapeType.ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
             // Get unit-adjusted value of field
             double fieldValue;
             try {
-                fieldValue = Double.parseDouble(shapeFieldSelectedValues.get(fInfo).getText().toString());
+                fieldValue = Double.parseDouble(
+                        shapeFieldSelectedValues.get(fInfo).getText().toString());
             }
             catch(NumberFormatException e) {
                 e.printStackTrace();
@@ -284,10 +287,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 break;
         }
 
-        // TODO add values to saved piece info
-        System.out.println(area);
-        System.out.println(total_mass);
-        System.out.println(total_price);
+        // TODO print results to screen, and add values to saved piece info
     }
 
     /**

@@ -15,15 +15,15 @@ import java.util.List;
  * in the main activity that displays all saved pieces.
  */
 public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.SavedPieceCardHolder> {
-    public List<SavedPieceInfo> savedPieceInfoList;
+    public List<SavedPiece> savedPiecesList;
 
     public SavedPieceAdapter() {
-        this.savedPieceInfoList = new LinkedList<>();
+        this.savedPiecesList = new LinkedList<>();
     }
 
     @Override
     public int getItemCount() {
-        return savedPieceInfoList.size();
+        return savedPiecesList.size();
     }
 
     /**
@@ -34,7 +34,7 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
      */
     @Override
     public void onBindViewHolder(SavedPieceAdapter.SavedPieceCardHolder savedPieceCardHolder, int i) {
-        SavedPieceInfo spi = savedPieceInfoList.get(i);
+        SavedPiece spi = savedPiecesList.get(i);
         savedPieceCardHolder.vShapeType.setText(spi.shapeType.shapeName);
         savedPieceCardHolder.vWidthDescription.setText(spi.widthDescription);
         savedPieceCardHolder.vPieceLength.setText("Length: " + spi.pieceLength + " ft");
