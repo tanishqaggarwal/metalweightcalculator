@@ -25,7 +25,7 @@ public class SavedPiece {
                       double pieceWeight, int numPieces, double pieceCost) {
         // When saving a piece, we don't need the full shape data, so we just save the name.
         this.shapeType = new ShapeType(shapeTypename, 0, 0,
-                null, null);
+                null, null,null);
         // We construct the rest of the fields as-is
         this.widthDescription = widthDescription;
         this.pieceLength = pieceLength;

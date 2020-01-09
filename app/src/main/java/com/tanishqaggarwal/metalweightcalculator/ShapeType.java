@@ -12,6 +12,7 @@ public class ShapeType {
     protected int shapeIcon;
     protected int shapeDimPic;
     protected String areaCalculation;
+    protected String perimeterCalculation;
     protected List<ShapeTypeFieldInfo> shapeFields;
 
 
@@ -23,11 +24,13 @@ public class ShapeType {
      * @param shapeFields
      */
     public ShapeType(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation,
+                     String perimeterCalculation,
                      List<ShapeTypeFieldInfo> shapeFields) {
         this.shapeName = shapeName;
         this.shapeIcon = shapeIcon;
         this.shapeDimPic = shapeDimPic;
         this.areaCalculation = areaCalculation;
+        this.perimeterCalculation = perimeterCalculation;
         this.shapeFields = shapeFields;
     }
 

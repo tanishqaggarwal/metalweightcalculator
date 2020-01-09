@@ -11,7 +11,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }"
+      "area_calc" : "function compute(w) { return w * 3 / 2 * Math.sqrt(3); }",
+      "perimeter_calc": "function compute(w) { return w * 2 * Math.sqrt(3); }"
     },
     {
       "shape_name" : "Round Bar",
@@ -24,7 +25,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(d) { return (d * d / 4) * Math.PI; }",
+      "perimeter_calc": "function compute(d) { return d * Math.PI; }"
     },
     {
       "shape_name" : "Pipe",
@@ -42,7 +44,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(d, t) { return (d - t) * t * 3.141592; }",
+      "perimeter_calc": "function compute(d) { return d * Math.PI + t * Math.PI; }"
     },
     {
       "shape_name" : "Square Bar",
@@ -55,7 +58,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(s) { return s * s; }",
+      "perimeter_calc": "function compute(s) { return 4 * s; }"
     },
     {
       "shape_name" : "Square Tubing",
@@ -71,9 +75,15 @@
           "field_name" : "Side (B)",
           "type" : "decimal",
           "units" : ["in", "ft", "mm","cm"]
+        },
+        {
+          "field_name" : "Thickness (T)",
+          "type" : "decimal",
+          "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b, t) { return a * b - (a - 2 * t) * (b - 2 * t); }",
+      "perimeter_calc": "function compute(a, b, t) { return 2 * (a + b) + 2 * (a + b - 4 * t); }"
     },
     {
       "shape_name" : "T Bar",
@@ -96,7 +106,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b, t) { return (a - t) * t + b * t; }",
+      "perimeter_calc": "function compute(a, b, t) { return 2 * (a - t) + 2 * (b + t); }"
     },
     {
       "shape_name" : "Beam",
@@ -124,7 +135,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b, t, s) { return (a - 2 * t) * t + 2 * b * t; }",
+      "perimeter_calc": "function compute(a, b, t, s) { return (a - 2 * t) * 2 + 2 * (b + t) - 2 * t; }"
     },
     {
       "shape_name" : "Channel",
@@ -152,7 +164,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b, t, s) { return a * t + (b - t) * s; }",
+      "perimeter_calc": "function compute(a, b, t, s) {return 2 * s + 2 * b + 2 * (b - t) + (a - 2 * s) + a; }"
     },
     {
       "shape_name" : "Angle",
@@ -175,7 +188,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b, t, s) { return a * t + (b - t) * t; }",
+      "perimeter_calc": "function compute(a, b, t) { return a + b + (a - t) + (b - t); }"
     },
     {
       "shape_name" : "Flat Bar",
@@ -193,7 +207,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b) { return a * b; }",
+      "perimeter_calc": "function compute(a, b) { return 2 * (a + b); }"
     },
     {
       "shape_name" : "Sheet",
@@ -211,7 +226,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b) { return a * b; }",
+      "perimeter_calc": "function compute(a, b) { return a * b; }"
     },
     {
       "shape_name" : "Plate",
@@ -229,7 +245,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "function compute(a, b) { return a * b; }",
+      "perimeter_calc": "function compute(a, b) { return 2 * (a + b); }"
     },
     {
       "shape_name" : "Coil",
@@ -252,7 +269,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
+      "area_calc" : "",
+      "perimeter_calc": ""
     },
     {
       "shape_name" : "Wire",
@@ -271,7 +289,8 @@
         }
 
       ],
-      "area_calc" : ""
+      "area_calc" : "",
+      "perimeter_calc": ""
     },
     {
       "shape_name" : "Wire Rod",
@@ -294,21 +313,8 @@
           "units" : ["in", "ft", "mm","cm"]
         }
       ],
-      "area_calc" : ""
-    },
-    {
-      "shape_name" : "Re Bar",
-      "icon" : "pic2pro",
-      "dim_pic" : "yuvarlakdolu",
-      "fields" : [
-        {
-          "field_name" : "Diameter (D)",
-          "type" : "decimal",
-          "units" : ["in", "ft", "mm","cm"]
-        }
-      ],
-      "area_calc" : ""
+      "area_calc" : "",
+      "perimeter_calc": ""
     }
-
   ]
 }

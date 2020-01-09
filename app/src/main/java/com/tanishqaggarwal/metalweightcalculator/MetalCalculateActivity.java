@@ -246,9 +246,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
             fieldValues.add(fieldValue);
         }
         Object[] calculationArgList = fieldValues.toArray();
-        double area = runAreaCalculation(currShapeData.areaCalculation, calculationArgList);
+        double area = runCalculation(currShapeData.areaCalculation, calculationArgList);
+        double perimeter = runCalculation(currShapeData.perimeterCalculation, calculationArgList);
 
         // Inputs and outputs of calculation.
+        // Inputs
         double density;
         try {
             density = Double.parseDouble(vDensity.getText().toString());
@@ -259,10 +261,14 @@ public class MetalCalculateActivity extends AppCompatActivity {
         }
         double kg_price = 1.0;
         int num_pieces = 1;
+        double length_per_piece = 0;
+        // Outputs
         double price_per_piece = 0;
         double volume_per_piece = 0;
+        double surface_area_per_piece = 0;
         double mass_per_piece = 0;
         double total_mass = 0;
+        double total_surface_area = 0;
         double total_price = 0;
         String results_str;
 
@@ -272,20 +278,20 @@ public class MetalCalculateActivity extends AppCompatActivity {
         switch(selectedCalculation) {
             case R.id.calculateByLengthRadioBtn:
                 // Compute volume
-                double length_per_piece = 1.0; // TODO replace with field
+                length_per_piece = 1.0; // TODO replace with field input
                 volume_per_piece = length_per_piece * area;
                 mass_per_piece = volume_per_piece * density;
-                price_per_piece = kg_price * mass_per_piece;
-                total_price = price_per_piece * num_pieces;
-                total_mass = mass_per_piece * num_pieces;
                 break;
             case R.id.calculateByWeightRadioBtn:
-                mass_per_piece = 1.0; // TODO replace with field
+                mass_per_piece = 1.0; // TODO replace with field input
                 volume_per_piece = mass_per_piece / density;
                 length_per_piece = volume_per_piece / area;
-                total_mass = mass_per_piece * num_pieces;
                 break;
         }
+        price_per_piece = kg_price * mass_per_piece;
+        total_price = price_per_piece * num_pieces;
+        surface_area_per_piece = length_per_piece * perimeter;
+        total_mass = mass_per_piece * num_pieces;
 
         // TODO print results to screen, and add values to saved piece info
     }
@@ -299,7 +305,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
      * @param args Field parameters provided to the calculation.
      * @return Value of cross-sectional area.
      */
-    public static double runAreaCalculation(String calculation, Object[] args) {
+    public static double runCalculation(String calculation, Object[] args) {
         double area;
 
         org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
