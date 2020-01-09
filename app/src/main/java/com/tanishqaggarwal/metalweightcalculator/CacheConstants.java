@@ -104,6 +104,7 @@ public class CacheConstants {
                 String shapeIconFilename = shapeJsonObj.getString("icon");
                 String shapeDimPicFilename = shapeJsonObj.getString("dim_pic");
                 String shapeVolumeCalculation = shapeJsonObj.getString("area_calc");
+                String shapeSurfaceAreaCalculation = shapeJsonObj.getString("perimeter_calc");
 
                 // Convert image filenames into Drawable objects that can be passed around
                 int shapeIconResourceId = ctx.getResources().getIdentifier(shapeIconFilename,
@@ -145,7 +146,7 @@ public class CacheConstants {
                 }
                 // Construct final shape type and add it to list
                 shapeTypes.put(shapeName, new ShapeType(shapeName, shapeIconResourceId,
-                        shapeDimPicResourceId, shapeVolumeCalculation, shapeFields));
+                        shapeDimPicResourceId, shapeVolumeCalculation, shapeSurfaceAreaCalculation, shapeFields));
             }
         }
         catch (IOException ex) {
