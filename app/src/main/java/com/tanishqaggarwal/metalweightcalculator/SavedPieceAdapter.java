@@ -30,17 +30,33 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
      * Populates newly recycled view holder with data from a previous view holder.
      *
      * @param savedPieceCardHolder Old view holder.
-     * @param i Index of new view holder.
+     * @param i                    Index of new view holder.
      */
     @Override
     public void onBindViewHolder(SavedPieceAdapter.SavedPieceCardHolder savedPieceCardHolder, int i) {
         SavedPiece spi = savedPiecesList.get(i);
-        savedPieceCardHolder.vShapeType.setText(spi.shapeType.shapeName);
-        savedPieceCardHolder.vWidthDescription.setText(spi.widthDescription);
-        savedPieceCardHolder.vPieceLength.setText("Length: " + spi.pieceLength + " ft");
-        savedPieceCardHolder.vPieceWeight.setText("Piece weight: " + spi.pieceWeight + " lb");
-        savedPieceCardHolder.vTotalWeight.setText("Total weight (" + spi.numPieces + " pieces): " + spi.pieceWeight * spi.numPieces + " lb");
-        savedPieceCardHolder.vTotalCost.setText("Total cost: " + spi.numPieces * spi.pieceCost);
+        savedPieceCardHolder.vShapeType.setText("Type:" + spi.ShapeName);
+        savedPieceCardHolder.width_a.setText("Width (A):" + spi.widthA + " " + spi.widthAU);
+        savedPieceCardHolder.width_w.setText("Width (W): " + spi.widthW + " " + spi.widthWU);
+
+        savedPieceCardHolder.length.setText("Length: " + spi.length + " " + spi.lengthU);
+        savedPieceCardHolder.weight.setText("Piece weight: " + spi.weight + " " + spi.weightU);
+
+        savedPieceCardHolder.diameter_d.setText("Diameter (D):" + spi.diameterD + " " + spi.diameterDU);
+        savedPieceCardHolder.diameter_s.setText("Diameter (S): " + spi.diameterS + " " + spi.diameterSU);
+
+        savedPieceCardHolder.internal_daimeter.setText("Internal Daimeter: " + spi.internalDaimeter + " " + spi.internalDaimeterU);
+        savedPieceCardHolder.outer_daimeter.setText("Outer Daimeter:" + spi.outerDiameter + " " + spi.outerDiameterU);
+
+        savedPieceCardHolder.side_a.setText("Side (A):" + spi.sideA + " " + spi.sideAU);
+        savedPieceCardHolder.side_b.setText("Side (B):" + spi.sideB + " " + spi.sideBU);
+
+        savedPieceCardHolder.thickness.setText("Thickness (T):" + spi.thicknessT + " " + spi.thicknessTU);
+
+        savedPieceCardHolder.piece_input_value.setText("Piece input value: " + spi.pieceInputVal);
+        savedPieceCardHolder.value_per_kg.setText("Value per kg: " + spi.kgInputVal);
+        savedPieceCardHolder.density.setText("Density:" + spi.density);
+
     }
 
     /**
@@ -65,20 +81,28 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
      */
     public class SavedPieceCardHolder extends RecyclerView.ViewHolder {
         protected TextView vShapeType;
-        protected TextView vWidthDescription;
-        protected TextView vPieceLength;
-        protected TextView vPieceWeight;
-        protected TextView vTotalWeight;
-        protected TextView vTotalCost;
+        protected TextView width_a, width_w, density;
+        protected TextView length, piece_input_value, value_per_kg;
+        protected TextView outer_daimeter, side_a, side_b, thickness;
+        protected TextView weight, diameter_d, diameter_s, internal_daimeter;
 
         public SavedPieceCardHolder(View v) {
             super(v);
             vShapeType = v.findViewById(R.id.shapeType);
-            vWidthDescription = v.findViewById(R.id.pieceWidthDescription);
-            vPieceLength = v.findViewById(R.id.pieceLength);
-            vPieceWeight = v.findViewById(R.id.pieceWeight);
-            vTotalWeight = v.findViewById(R.id.totalWeight);
-            vTotalCost = v.findViewById(R.id.totalCost);
+            width_a = v.findViewById(R.id.width_a);
+            width_w = v.findViewById(R.id.width_w);
+            length = v.findViewById(R.id.length);
+            weight = v.findViewById(R.id.weight);
+            diameter_d = v.findViewById(R.id.diameter_d);
+            diameter_s = v.findViewById(R.id.diameter_s);
+            internal_daimeter = v.findViewById(R.id.internal_daimeter);
+            outer_daimeter = v.findViewById(R.id.outer_daimeter);
+            side_a = v.findViewById(R.id.side_a);
+            side_b = v.findViewById(R.id.side_b);
+            thickness = v.findViewById(R.id.thickness);
+            piece_input_value = v.findViewById(R.id.piece_input_value);
+            value_per_kg = v.findViewById(R.id.value_per_kg);
+            density = v.findViewById(R.id.density);
         }
     }
 }

@@ -27,34 +27,89 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/pieceWidthDescription"
+                    android:id="@+id/width_a"
                     android:layout_width="306dp"
                     android:layout_height="wrap_content"
                     android:text="pieceWidthDescription" />
 
                 <TextView
-                    android:id="@+id/pieceLength"
-                    android:layout_width="306dp"
-                    android:layout_height="wrap_content"
-                    android:text="pieceLength" />
-
-                <TextView
-                    android:id="@+id/pieceWeight"
-                    android:layout_width="306dp"
-                    android:layout_height="wrap_content"
-                    android:text="pieceWeight" />
-
-                <TextView
-                    android:id="@+id/totalWeight"
+                    android:id="@+id/width_w"
                     android:layout_width="304dp"
                     android:layout_height="wrap_content"
                     android:text="totalWeight" />
 
                 <TextView
-                    android:id="@+id/totalCost"
+                    android:id="@+id/length"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceLength" />
+
+                <TextView
+                    android:id="@+id/weight"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceWeight" />
+
+                <TextView
+                    android:id="@+id/diameter_d"
+                    android:layout_width="304dp"
+                    android:layout_height="wrap_content"
+                    android:text="totalWeight" />
+
+                <TextView
+                    android:id="@+id/diameter_s"
                     android:layout_width="306dp"
                     android:layout_height="wrap_content"
                     android:text="totalCost" />
+
+                <TextView
+                    android:id="@+id/internal_daimeter"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceWidthDescription" />
+
+                <TextView
+                    android:id="@+id/outer_daimeter"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceLength" />
+
+                <TextView
+                    android:id="@+id/side_a"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceWeight" />
+
+                <TextView
+                    android:id="@+id/side_b"
+                    android:layout_width="304dp"
+                    android:layout_height="wrap_content"
+                    android:text="totalWeight" />
+
+                <TextView
+                    android:id="@+id/thickness"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="totalCost" />
+
+                <TextView
+                    android:id="@+id/piece_input_value"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceWidthDescription" />
+
+                <TextView
+                    android:id="@+id/value_per_kg"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceLength" />
+
+                <TextView
+                    android:id="@+id/density"
+                    android:layout_width="306dp"
+                    android:layout_height="wrap_content"
+                    android:text="pieceWeight" />
+
 
             </LinearLayout>
 

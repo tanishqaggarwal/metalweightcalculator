@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import io.realm.RealmList;
+
 public class CacheConstants {
     public static HashMap<String, ShapeType> shapeTypes;
     public static Map<String, Double> metalData;
@@ -104,7 +106,6 @@ public class CacheConstants {
                 String shapeIconFilename = shapeJsonObj.getString("icon");
                 String shapeDimPicFilename = shapeJsonObj.getString("dim_pic");
                 String shapeVolumeCalculation = shapeJsonObj.getString("area_calc");
-                String shapeSurfaceAreaCalculation = shapeJsonObj.getString("perimeter_calc");
 
                 // Convert image filenames into Drawable objects that can be passed around
                 int shapeIconResourceId = ctx.getResources().getIdentifier(shapeIconFilename,
@@ -114,7 +115,7 @@ public class CacheConstants {
 
                 // Read shape fields
                 JSONArray shapeFieldsJsonArray = shapeJsonObj.getJSONArray("fields");
-                List<ShapeType.ShapeTypeFieldInfo> shapeFields = new LinkedList<>();
+                RealmList<ShapeTypeFieldInfo> shapeFields = new RealmList<>();
                 for(int j = 0; j < shapeFieldsJsonArray.length(); j++) {
                     JSONObject field = shapeFieldsJsonArray.getJSONObject(j);
                     String fieldName = field.getString("field_name");
@@ -127,26 +128,22 @@ public class CacheConstants {
                     }
 
                     JSONArray fieldUnitsJsonArray = field.getJSONArray("units");
-                    List<String> fieldUnits = new LinkedList<>();
+                    RealmList<String> fieldUnits = new RealmList<>();
                     for(int k = 0; k < fieldUnitsJsonArray.length(); k++) {
                         fieldUnits.add(fieldUnitsJsonArray.getString(k));
                     }
                     // Validate units
-                    List<String> lengthUnitList = Arrays.asList(
-                            CacheConstants.lengthUnits.keySet().toArray(new String[0]));
-                    List<String> weightUnitList = Arrays.asList(
-                            CacheConstants.weightUnits.keySet().toArray(new String[0]));
+                    List<String> lengthUnitList = Arrays.asList(CacheConstants.lengthUnits.keySet().toArray(new String[0]));
+                    List<String> weightUnitList = Arrays.asList(CacheConstants.weightUnits.keySet().toArray(new String[0]));
                     for(String unit : fieldUnits) {
                         if(!lengthUnitList.contains(unit) && !weightUnitList.contains(unit)) {
                             throw new JSONException("Invalid field units");
                         }
                     }
-                    shapeFields.add(new ShapeType.ShapeTypeFieldInfo(fieldName, fieldType,
-                            fieldUnits));
+                    shapeFields.add(new ShapeTypeFieldInfo(fieldName, fieldType, fieldUnits));
                 }
                 // Construct final shape type and add it to list
-                shapeTypes.put(shapeName, new ShapeType(shapeName, shapeIconResourceId,
-                        shapeDimPicResourceId, shapeVolumeCalculation, shapeSurfaceAreaCalculation, shapeFields));
+                shapeTypes.put(shapeName, new ShapeType(shapeName, shapeIconResourceId, shapeDimPicResourceId, shapeVolumeCalculation, shapeFields));
             }
         }
         catch (IOException ex) {

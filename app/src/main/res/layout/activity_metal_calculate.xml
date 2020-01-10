@@ -1,143 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MetalCalculateActivity">
 
-    <ImageView
-        android:id="@+id/dimPic"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:srcCompat="@mipmap/ic_launcher"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintWidth_percent=".35"
-        app:layout_constraintHeight_percent=".35"/>
-
-    <Spinner
-        android:id="@+id/metalSelect"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        app:layout_constraintLeft_toRightOf="@+id/dimPic"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent=".65"
-        app:layout_constraintHeight_percent=".1"/>
-
-    <Button
-        android:id="@+id/readBarcodeBtn"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:onClick="readBarcode"
-        android:text="Read Barcode"
-        app:layout_constraintLeft_toRightOf="@+id/dimPic"
-        app:layout_constraintTop_toBottomOf="@+id/metalSelect"
-        app:layout_constraintWidth_percent=".65"
-        app:layout_constraintHeight_percent=".1"/>
-
-    <Button
-        android:id="@+id/addPictureBtn"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:onClick="takePicture"
-        android:text="Add Pictures"
-        app:layout_constraintLeft_toRightOf="@+id/dimPic"
-        app:layout_constraintTop_toBottomOf="@+id/readBarcodeBtn"
-        app:layout_constraintWidth_percent=".325"
-        app:layout_constraintHeight_percent=".15"/>
-
-    <RadioGroup
-        android:id="@+id/calculationOptionRadioGroup"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/readBarcodeBtn"
-        app:layout_constraintLeft_toRightOf="@id/addPictureBtn"
-        app:layout_constraintWidth_percent=".325"
-        app:layout_constraintHeight_percent=".15">
-
-        <RadioButton
-            android:id="@+id/calculateByLengthRadioBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="By Length" />
-
-        <RadioButton
-            android:id="@+id/calculateByWeightRadioBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="By Weight" />
-
-    </RadioGroup>
-
-    <EditText
-        android:id="@+id/densityField"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:ems="10"
-        android:hint="Density: 0.00 g/cm3"
-        android:inputType="numberDecimal"
-        app:layout_constraintTop_toBottomOf="@id/dimPic"
-        app:layout_constraintHeight_percent=".1" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/buttons">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+
+            <Spinner
+                android:id="@+id/metalSelect"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ll_image"
+                android:layout_margin="5dp"
+                android:layout_below="@+id/metalSelect">
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/dimPic"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        app:srcCompat="@mipmap/ic_launcher" />
+
+                    <Button
+                        android:id="@+id/addPictureBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:onClick="takePicture"
+                        android:text="Add Pictures" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/readBarcodeBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="readBarcode"
+                        android:text="Read Barcode" />
+
+                    <RadioGroup
+                        android:id="@+id/calculationOptionRadioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <RadioButton
+                            android:id="@+id/calculateByLengthRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="By Length" />
+
+                        <RadioButton
+                            android:id="@+id/calculateByWeightRadioBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="By Weight" />
+
+                    </RadioGroup>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/densityField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@+id/ll_image"
+                android:hint="Density: 0.00 g/cm3"
+                android:inputType="numberDecimal" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_below="@+id/densityField"
+                android:id="@+id/allFieldsView"
+                android:layout_gravity="top"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/shapeFieldsView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:id="@+id/optionFieldsView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/allFieldsView"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/valueByLength">
+
+                    <EditText
+                        android:id="@+id/fieldDataLength"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:ems="10"
+                        android:hint="Length"
+                        android:layout_weight="1"
+                        android:inputType="number" />
+
+                    <Spinner
+                        android:id="@+id/fieldUnitsLength"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:layout_weight=".3" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/valueByWeigth">
+
+                    <EditText
+                        android:id="@+id/fieldDataWigth"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:ems="10"
+                        android:hint="Length"
+                        android:layout_weight="1"
+                        android:inputType="number" />
+
+                    <Spinner
+                        android:id="@+id/fieldUnitsWigth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:layout_weight=".3" />
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/kgPriceLength"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="Kg Price"
+                    android:ems="10"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/noofPieces"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:hint="No of pieces"
+                    android:inputType="number" />
+
+                <TextView
+                    android:id="@+id/resultsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Results: 0 lb"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:textAppearance="@android:style/TextAppearance.Material.Large" />
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
 
     <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/allFieldsView"
-        android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/densityField"
-        app:layout_constraintBottom_toTopOf="@id/resultsText">
+        android:layout_alignParentBottom="true"
+        android:id="@+id/buttons"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/shapeFieldsView"
+        <Button
+            android:id="@+id/calculateBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:text="Calculate"
+            android:layout_weight="1"
+            android:onClick="calculatePieceInfo" />
 
-        <LinearLayout
-            android:id="@+id/optionFieldsView"
+        <Button
+            android:id="@+id/saveBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
-
+            android:onClick="savePieceInfo"
+            android:layout_weight="1"
+            android:text="Save" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/resultsText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Results: 0 lb"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintBottom_toTopOf="@+id/calculateBtn"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHeight_percent=".1"/>
-
-    <Button
-        android:id="@+id/calculateBtn"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="Calculate"
-        android:onClick="calculatePieceInfo"
-        app:layout_constraintRight_toLeftOf="@+id/saveBtn"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintWidth_percent=".5"
-        app:layout_constraintHeight_percent=".1"/>
-
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:onClick="savePieceInfo"
-        android:text="Save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/calculateBtn"
-        app:layout_constraintWidth_percent=".5"
-        app:layout_constraintHeight_percent=".1"/>
-
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

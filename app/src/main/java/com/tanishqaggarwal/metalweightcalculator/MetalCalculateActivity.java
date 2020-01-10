@@ -12,7 +12,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
-import android.text.InputType;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +22,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,17 +38,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import io.realm.Realm;
+import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 public class MetalCalculateActivity extends AppCompatActivity {
     // Metadata of currently displayed shape
     ShapeType currShapeData;
 
     // Mappings from shape's fields to form elements created for the fields
-    Map<ShapeType.ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
-    Map<ShapeType.ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
+    Map<ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
+    Map<ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
 
     // Manages calculation UI elements and computation based on selected radio button
     RadioViewController calculationController;
@@ -51,14 +55,24 @@ public class MetalCalculateActivity extends AppCompatActivity {
     List<String> currentPhotoPath;
     // Densities used by density spinner
     Map<String, Double> densities;
-    // Editable density field
-    EditText vDensity;
-
     /**
      * Dynamically initialize form elements for the chosen shape.
      *
      * @param savedInstanceState
      */
+    String shapeType;
+    // Editable density field
+    EditText vDensity;
+    double widthA = 0.0, diameterD = 0.0, diameterS = 0.0, thicknessT = 0.0,
+            sideA = 0.0, sideB = 0.0, widthW = 0.0, internalDaimeter = 0.0, outerDiameter = 0.0, length = 0.0, weight = 0.0;
+    String widthAU = "", diameterDU = "", diameterSU = "", thicknessTU = "",
+            sideAU = "", sideBU = "", widthWU = "", internalDaimeterU = "", outerDiameterU = "", lengthU = "", weightU = "";
+    double density = 0.0;
+    double pieceInputVal = 0.0;
+    double kgInputVal = 0.0;
+    EditText fieldDataLength, kgPriceLength, fieldDataWigth, noofPieces;
+    Spinner fieldUnitsLength, fieldUnitsWigth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,13 +80,19 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
         // Get selected shape type and add image to screen
         Bundle bundle = getIntent().getExtras();
-        String shapeType = bundle.getString("shape");
+        shapeType = bundle.getString("shape");
         currShapeData = CacheConstants.shapeTypes.get(shapeType);
         ImageView dimPic = findViewById(R.id.dimPic);
         dimPic.setImageResource(currShapeData.shapeDimPic);
 
         // Get all form elements
         vDensity = this.findViewById(R.id.densityField);
+        fieldDataLength = findViewById(R.id.fieldDataLength);
+        kgPriceLength = findViewById(R.id.kgPriceLength);
+        fieldUnitsLength = findViewById(R.id.fieldUnitsLength);
+        fieldDataWigth = findViewById(R.id.fieldDataWigth);
+        fieldUnitsWigth = findViewById(R.id.fieldUnitsWigth);
+        noofPieces = findViewById(R.id.noofPieces);
 
         // Read in JSON data on material densities
         densities = CacheConstants.readDensities(getAssets());
@@ -83,37 +103,24 @@ public class MetalCalculateActivity extends AppCompatActivity {
         shapeFieldSelectedValues = new HashMap<>();
         shapeFieldSelectedUnits = new HashMap<>();
         LinearLayout fieldsView = findViewById(R.id.shapeFieldsView);
-        for(int i = 0; i < currShapeData.shapeFields.size(); i++) {
-            View fieldView = getLayoutInflater().inflate(R.layout.shape_field, null);
-            ShapeType.ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
+        for (int i = 0; i < currShapeData.shapeFields.size(); i++) {
 
+            View fieldView = getLayoutInflater().inflate(R.layout.shape_field, null);
+
+            ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
+            assert field != null;
             String fieldName = field.fieldName;
             String fieldType = field.fieldType;
 
-            int fieldTypeNum;
-            if (fieldType.equals("number")) {
-                fieldTypeNum = InputType.TYPE_CLASS_NUMBER;
-            }
-            else if (fieldType.equals("decimal")) {
-                fieldTypeNum = InputType.TYPE_NUMBER_FLAG_DECIMAL;
-            }
-            else {
-                System.out.println("Invalid field type for shape input field.");
-                return;
-            }
             // Set input field values
             EditText numericInput = fieldView.findViewById(R.id.fieldData);
             numericInput.setHintTextColor(Color.GRAY);
             numericInput.setTextColor(Color.BLACK);
             numericInput.setHint(fieldName);
-            numericInput.setInputType(fieldTypeNum);
 
             // Populate spinner with available units
             Spinner unitInput = fieldView.findViewById(R.id.fieldUnits);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    this,
-                    android.R.layout.simple_spinner_dropdown_item,
-                    field.fieldUnits);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, field.fieldUnits);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             unitInput.setAdapter(adapter);
 
@@ -127,7 +134,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
         // Initialize photos path
         currentPhotoPath = new ArrayList<>();
-
         // Add radio button listener and set default option to be "calculate by length"
         RadioGroup radioGroup = findViewById(R.id.calculationOptionRadioGroup);
         calculationController = new RadioViewController(this);
@@ -135,6 +141,137 @@ public class MetalCalculateActivity extends AppCompatActivity {
         radioGroup.check(R.id.calculateByLengthRadioBtn);
     }
 
+    /**
+     * When the user selects "by weight" or "by length" calculations, this helper class does the
+     * magic to change the UI and the data elements backing the UI.
+     */
+    private class RadioViewController implements RadioGroup.OnCheckedChangeListener {
+        /**
+         * Activity context (provided by constructor), used by field construction methods
+         */
+        Context ctx;
+
+        public RadioViewController(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        /**
+         * Executes whenever the choice of calculation is changed.
+         *
+         * @param group     UI element of the calculation choice radio group.
+         * @param checkedId ID of selected UI element.
+         */
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            // checkedId is the RadioButton selected
+            switch (checkedId) {
+                case R.id.calculateByLengthRadioBtn:
+                    fieldDataLength.setVisibility(View.VISIBLE);
+                    kgPriceLength.setVisibility(View.VISIBLE);
+                    fieldDataWigth.setVisibility(View.GONE);
+                    fieldUnitsLength.setVisibility(View.VISIBLE);
+                    fieldUnitsWigth.setVisibility(View.GONE);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ctx,
+                            android.R.layout.simple_spinner_dropdown_item,
+                            CacheConstants.lengthUnits.keySet().toArray(new String[0]));
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    fieldUnitsLength.setAdapter(adapter);
+                    break;
+                case R.id.calculateByWeightRadioBtn:
+                    fieldDataLength.setVisibility(View.GONE);
+                    kgPriceLength.setVisibility(View.GONE);
+                    fieldDataWigth.setVisibility(View.VISIBLE);
+                    fieldUnitsLength.setVisibility(View.GONE);
+                    fieldUnitsWigth.setVisibility(View.VISIBLE);
+                    ArrayAdapter<String> adapter2 = new ArrayAdapter<>(ctx,
+                            android.R.layout.simple_spinner_dropdown_item,
+                            CacheConstants.weightUnits.keySet().toArray(new String[0]));
+                    adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    fieldUnitsWigth.setAdapter(adapter2);
+                    break;
+            }
+
+        }
+    }
+
+
+    public void getDataFromFields() {
+        // TODO
+        for (int i = 0; i < currShapeData.shapeFields.size(); i++) {
+            ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
+            EditText editText = shapeFieldSelectedValues.get(field);
+            Spinner spinner = shapeFieldSelectedUnits.get(field);
+            String spinnerItem = spinner.getSelectedItem().toString();
+            String hint = editText.getHint().toString();
+            if (!editText.getText().toString().isEmpty()) {
+                switch (hint) {
+                    case "Width (A)":
+                        widthA = Double.parseDouble(editText.getText().toString());
+                        widthAU = spinnerItem;
+                        break;
+                    case "Diameter (D)":
+                        diameterD = Double.valueOf(editText.getText().toString());
+                        diameterDU = spinnerItem;
+                        break;
+                    case "Thickness (S)":
+                        diameterS = Double.valueOf(editText.getText().toString());
+                        diameterSU = spinnerItem;
+                        break;
+                    case "Thickness (T)":
+                        thicknessT = Double.valueOf(editText.getText().toString());
+                        thicknessTU = spinnerItem;
+                        break;
+                    case "Side (A)":
+                        sideA = Double.valueOf(editText.getText().toString());
+                        sideAU = spinnerItem;
+                        break;
+                    case "Side (B)":
+                        sideB = Double.valueOf(editText.getText().toString());
+                        sideBU = spinnerItem;
+                        break;
+                    case "Width (W)":
+                        widthW = Double.valueOf(editText.getText().toString());
+                        widthWU = spinnerItem;
+                        break;
+                    case "Internal Diameter (ID)":
+                        internalDaimeter = Double.valueOf(editText.getText().toString());
+                        internalDaimeterU = spinnerItem;
+                        break;
+                    case "Outer Diameter (OD)":
+                        outerDiameter = Double.valueOf(editText.getText().toString());
+                        outerDiameterU = spinnerItem;
+                        break;
+                }
+            } else {
+                Toast.makeText(MetalCalculateActivity.this, "Please enter all values", Toast.LENGTH_SHORT).show();
+            }
+
+            length = checkValue(fieldDataLength);
+            lengthU = fieldUnitsLength.getSelectedItem().toString();
+            kgInputVal = checkValue(kgPriceLength);
+
+            weight = checkValue(fieldDataWigth);
+            weightU = fieldUnitsWigth.getSelectedItem().toString();
+
+            pieceInputVal = checkValue(noofPieces);
+
+            density = checkValue(vDensity);
+
+
+            Log.d(">>>", "3ndDy " + pieceInputVal + "/" + kgInputVal);
+            Log.d(">>>", "2ndDy " + length + "/" + weight);
+            Log.d(">>>", "FirstDy " + widthA + "/" + diameterD + "/" + diameterS + "/" + thicknessT + "/" +
+                    sideA + "/" + sideB + "/" + widthW + "/" + internalDaimeter + "/" + outerDiameter);
+        }
+    }
+
+    public double checkValue(EditText editText) {
+        if (!editText.getText().toString().isEmpty()) {
+            return Double.parseDouble(editText.getText().toString());
+        } else {
+            return 0.0;
+        }
+    }
 
     /**
      * Create metal choice selector.
@@ -151,12 +288,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView,
-                                       int position, long id) {
-                String selectedMaterial =
-                        ((AppCompatTextView) selectedItemView).getText().toString();
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedMaterial = ((AppCompatTextView) selectedItemView).getText().toString();
                 vDensity.setText(densities.get(selectedMaterial).toString());
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 vDensity.setText("");
@@ -218,9 +354,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
      * @param v Button that was clicked to save information.
      */
     public void savePieceInfo(View v) {
-        // TODO
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        getDataFromFields();
+        addPiece(shapeType, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+        //        Intent intent = new Intent(this, MainActivity.class);
+//        startActivity(intent);
     }
 
     /**
@@ -230,14 +367,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
     public void calculatePieceInfo(View v) {
         List<Object> fieldValues = new LinkedList<>();
-        for(ShapeType.ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
+        for (ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
             // Get unit-adjusted value of field
             double fieldValue;
             try {
-                fieldValue = Double.parseDouble(
-                        shapeFieldSelectedValues.get(fInfo).getText().toString());
-            }
-            catch(NumberFormatException e) {
+                fieldValue = Double.parseDouble(shapeFieldSelectedValues.get(fInfo).getText().toString());
+            } catch (NumberFormatException e) {
                 e.printStackTrace();
                 fieldValue = 0;
             }
@@ -246,52 +381,45 @@ public class MetalCalculateActivity extends AppCompatActivity {
             fieldValues.add(fieldValue);
         }
         Object[] calculationArgList = fieldValues.toArray();
-        double area = runCalculation(currShapeData.areaCalculation, calculationArgList);
-        double perimeter = runCalculation(currShapeData.perimeterCalculation, calculationArgList);
+        double area = runAreaCalculation(currShapeData.areaCalculation, calculationArgList);
 
         // Inputs and outputs of calculation.
-        // Inputs
         double density;
         try {
             density = Double.parseDouble(vDensity.getText().toString());
-        }
-        catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             density = 0;
         }
         double kg_price = 1.0;
         int num_pieces = 1;
-        double length_per_piece = 0;
-        // Outputs
         double price_per_piece = 0;
         double volume_per_piece = 0;
-        double surface_area_per_piece = 0;
         double mass_per_piece = 0;
         double total_mass = 0;
-        double total_surface_area = 0;
         double total_price = 0;
         String results_str;
 
         // Get calculation option and run calculation with field inputs
         RadioGroup calculationOptionRadioGroup = findViewById(R.id.calculationOptionRadioGroup);
         int selectedCalculation = calculationOptionRadioGroup.getCheckedRadioButtonId();
-        switch(selectedCalculation) {
+        switch (selectedCalculation) {
             case R.id.calculateByLengthRadioBtn:
                 // Compute volume
-                length_per_piece = 1.0; // TODO replace with field input
+                double length_per_piece = 1.0; // TODO replace with field
                 volume_per_piece = length_per_piece * area;
                 mass_per_piece = volume_per_piece * density;
+                price_per_piece = kg_price * mass_per_piece;
+                total_price = price_per_piece * num_pieces;
+                total_mass = mass_per_piece * num_pieces;
                 break;
             case R.id.calculateByWeightRadioBtn:
-                mass_per_piece = 1.0; // TODO replace with field input
+                mass_per_piece = 1.0; // TODO replace with field
                 volume_per_piece = mass_per_piece / density;
                 length_per_piece = volume_per_piece / area;
+                total_mass = mass_per_piece * num_pieces;
                 break;
         }
-        price_per_piece = kg_price * mass_per_piece;
-        total_price = price_per_piece * num_pieces;
-        surface_area_per_piece = length_per_piece * perimeter;
-        total_mass = mass_per_piece * num_pieces;
 
         // TODO print results to screen, and add values to saved piece info
     }
@@ -302,10 +430,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
      *
      * @param calculation String containing the javascript describing the calculation. The shape's
      *                    field parameters will be provided, in order, to the function.
-     * @param args Field parameters provided to the calculation.
+     * @param args        Field parameters provided to the calculation.
      * @return Value of cross-sectional area.
      */
-    public static double runCalculation(String calculation, Object[] args) {
+    public static double runAreaCalculation(String calculation, Object[] args) {
         double area;
 
         org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
@@ -319,129 +447,10 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
             area = Double.parseDouble(org.mozilla.javascript.Context.jsToJava(result,
                     double.class).toString());
-        }
-        finally {
+        } finally {
             org.mozilla.javascript.Context.exit();
         }
         return area;
-    }
-
-
-    /**
-     * When the user selects "by weight" or "by length" calculations, this helper class does the
-     * magic to change the UI and the data elements backing the UI.
-     */
-    private class RadioViewController implements RadioGroup.OnCheckedChangeListener {
-        /**
-         * Lists populated upon construction that contain the elements to display
-         * for each choice of calculation.
-         */
-        List<View> calculateByLengthViewList;
-        List<View> calculateByWeightViewList;
-
-        /**
-         * Currently displayed list of fields
-         */
-        List<View> currentViewList;
-
-        /**
-         * Activity context (provided by constructor), used by field construction methods
-         */
-        Context ctx;
-
-
-        public RadioViewController(Context ctx) {
-            currentViewList = new LinkedList<>();
-            this.ctx = ctx;
-
-            calculateByLengthViewList = createViewsForCalculateByLength();
-            calculateByWeightViewList = createViewsForCalculateByWeight();
-        }
-
-        /**
-         * Executes whenever the choice of calculation is changed.
-         *
-         * @param group UI element of the calculation choice radio group.
-         * @param checkedId ID of selected UI element.
-         */
-        @Override
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-            LinearLayout allFields = findViewById(R.id.optionFieldsView);
-
-            for(View v : currentViewList) {
-                allFields.removeView(v);
-            }
-
-            // checkedId is the RadioButton selected
-            switch(checkedId) {
-                case R.id.calculateByLengthRadioBtn:
-                    currentViewList = calculateByLengthViewList;
-                    break;
-                case R.id.calculateByWeightRadioBtn:
-                    currentViewList = calculateByWeightViewList;
-                    break;
-            }
-
-            for(View v : currentViewList) {
-                allFields.addView(v);
-            }
-        }
-
-        private List<View> createViewsForCalculateByLength() {
-            List<View> viewList = new LinkedList<>();
-
-            // Create length view
-            View lengthView = getLayoutInflater().inflate(R.layout.shape_field, null);
-            EditText numericInput = lengthView.findViewById(R.id.fieldData);
-            numericInput.setHint("Length");
-            numericInput.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            Spinner unitInput = lengthView.findViewById(R.id.fieldUnits);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(ctx,
-                    android.R.layout.simple_spinner_dropdown_item,
-                    CacheConstants.lengthUnits.keySet().toArray(new String[0]));
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            unitInput.setAdapter(adapter);
-            viewList.add(lengthView);
-
-            viewList.add(createPiecesView());
-
-            // Create kg price view
-            EditText kgPriceInput = new EditText(ctx);
-            kgPriceInput.setHint("Kg Price");
-            kgPriceInput.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            viewList.add(kgPriceInput);
-
-            return viewList;
-        }
-
-        private List<View> createViewsForCalculateByWeight() {
-            List<View> viewList = new LinkedList<>();
-
-            // Create mass view
-            View massView = getLayoutInflater().inflate(R.layout.shape_field, null);
-            EditText numericInput = massView.findViewById(R.id.fieldData);
-            numericInput.setHint("Weight");
-            numericInput.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            Spinner unitInput = massView.findViewById(R.id.fieldUnits);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(ctx,
-                    android.R.layout.simple_spinner_dropdown_item,
-                    CacheConstants.weightUnits.keySet().toArray(new String[0]));
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            unitInput.setAdapter(adapter);
-            viewList.add(massView);
-
-            viewList.add(createPiecesView());
-
-            return viewList;
-        }
-
-        private View createPiecesView() {
-            // Create length view
-            EditText piecesInput = new EditText(ctx);
-            piecesInput.setHint("Pieces");
-            piecesInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            return piecesInput;
-        }
     }
 
     /**
@@ -460,7 +469,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 new BarcodeDetector.Builder(getApplicationContext())
                         .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
                         .build();
-        if(!detector.isOperational()) {
+        if (!detector.isOperational()) {
             System.out.println("Could not set up the detector!");
             return;
         }
@@ -470,5 +479,29 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
         Barcode thisCode = barcodes.valueAt(0);
         System.out.println(thisCode.rawValue);
+    }
+
+    private void addPiece(String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
+        final SavedPiece object = new SavedPiece(ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    try {
+                        realm.copyToRealm(object);
+                        Toast.makeText(getApplicationContext(), "Item Saved", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } catch (RealmPrimaryKeyConstraintException e) {
+                        Toast.makeText(getApplicationContext(), "Primary Key exists, Press Update instead", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
     }
 }
