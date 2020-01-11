@@ -2,14 +2,21 @@ package com.tanishqaggarwal.metalweightcalculator;
 
 import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 
 import de.siegmar.fastcsv.writer.CsvAppender;
@@ -78,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
      * @param v Button.
      */
     public void exportList(View v) {
-        if (checkPermission())
+        if (checkPermission()) {
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
@@ -99,13 +106,41 @@ public class MainActivity extends AppCompatActivity {
                                     , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
                                     , val.length + val.lengthU, val.weight + val.weightU,
                                     String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density));
-                            csvAppender.endLine();
                         }
+                        csvAppender.endLine();
+                        shareFile(file);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
             });
+        } else {
+            Toast.makeText(MainActivity.this, "Need permission of this operation", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareFile(File file) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            try {
+                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                m.invoke(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d(">>>", "Share File" + file.getAbsolutePath());
+
+        Uri path = Uri.fromFile(file);
+        Log.d(">>>", "Share Uri" + path);
+
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+// set the type to 'email'
+        emailIntent.setType("*/email");
+// the attachment
+        emailIntent.putExtra(Intent.EXTRA_STREAM, path);
+// the mail subject
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Share file");
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
     private void readRecords() {
