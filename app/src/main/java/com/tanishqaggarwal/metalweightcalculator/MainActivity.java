@@ -57,7 +57,19 @@ public class MainActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        sa = new SavedPieceAdapter();
+        sa = new SavedPieceAdapter(new RecyclerClickListner() {
+            @Override
+            public void onPositionClicked(int position) {
+                Toast.makeText(MainActivity.this, "Loomg Press to del item", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLongClicked(int position) {
+                Log.d(">>>", sa.savedPiecesList.get(position).ShapeName);
+                deleteRecord(sa.savedPiecesList.get(position).ShapeName);
+                readRecords();
+            }
+        });
         recList.setAdapter(sa);
         readRecords();
 
@@ -67,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         readRecords();
+    }
+
+    private void deleteRecord(final String name) {
+        Realm mRealm = Realm.getDefaultInstance();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                SavedPiece piece = realm.where(SavedPiece.class).equalTo("ShapeName", name).findFirst();
+                if (piece != null) {
+                    piece.deleteFromRealm();
+                }
+            }
+        });
     }
 
     /**
@@ -91,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 public void execute(Realm realm) {
                     RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
                     File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-                    File file = new File(path, "/" + "foo.csv");
+                    File file = new File(path, "/" + "itemFile.csv");
                     CsvWriter csvWriter = new CsvWriter();
                     try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
                         for (int i = 0; i < results.size(); i++) {

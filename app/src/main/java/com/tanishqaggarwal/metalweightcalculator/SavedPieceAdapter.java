@@ -1,16 +1,18 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
-import androidx.recyclerview.widget.RecyclerView;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-
-import io.realm.Realm;
 
 
 /**
@@ -19,9 +21,11 @@ import io.realm.Realm;
  */
 public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.SavedPieceCardHolder> {
     public List<SavedPiece> savedPiecesList;
-    private  SavedPiece spi;
+    private SavedPiece spi;
+    RecyclerClickListner listener;
 
-    public SavedPieceAdapter() {
+    public SavedPieceAdapter(RecyclerClickListner listener) {
+        this.listener = listener;
         this.savedPiecesList = new LinkedList<>();
     }
 
@@ -83,30 +87,11 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
         checkVal(savedPieceCardHolder.density, spi.density);
         savedPieceCardHolder.density.setText("Density:" + spi.density);
 
-        savedPieceCardHolder.delItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteRecord(spi.ShapeName);
-            }
-        });
     }
 
     private void checkVal(TextView tv, double data) {
         if (data == 0)
             tv.setVisibility(View.GONE);
-    }
-
-    private void deleteRecord(final String name) {
-        Realm mRealm = Realm.getDefaultInstance();
-        mRealm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                SavedPiece piece = realm.where(SavedPiece.class).equalTo("ShapeName", name).findFirst();
-                if (piece != null) {
-                    piece.deleteFromRealm();
-                }
-            }
-        });
     }
 
     /**
@@ -122,23 +107,25 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
                 from(viewGroup.getContext()).
                 inflate(R.layout.cardview_saved_piece, viewGroup, false);
 
-        return new SavedPieceAdapter.SavedPieceCardHolder(itemView);
+        return new SavedPieceAdapter.SavedPieceCardHolder(itemView, listener);
     }
 
     /**
      * Decomposes the ViewHolder provided by RecyclerView into the data fields relevant to a saved
      * piece.
      */
-    public class SavedPieceCardHolder extends RecyclerView.ViewHolder {
+    public class SavedPieceCardHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         protected TextView vShapeType;
         protected TextView width_a, width_w, density;
         protected TextView length, piece_input_value, value_per_kg;
         protected TextView outer_daimeter, side_a, side_b, thickness;
         protected TextView weight, diameter_d, diameter_s, internal_daimeter;
         LinearLayout delItem;
+        private WeakReference<RecyclerClickListner> listenerRef;
 
-        public SavedPieceCardHolder(View v) {
+        public SavedPieceCardHolder(View v, RecyclerClickListner listener) {
             super(v);
+            listenerRef = new WeakReference<>(listener);
             vShapeType = v.findViewById(R.id.shapeType);
             width_a = v.findViewById(R.id.width_a);
             width_w = v.findViewById(R.id.width_w);
@@ -155,6 +142,32 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
             value_per_kg = v.findViewById(R.id.value_per_kg);
             density = v.findViewById(R.id.density);
             delItem = v.findViewById(R.id.del_item);
+            delItem.setOnLongClickListener(this);
+            delItem.setOnClickListener(this);
+        }
+
+        // onClick Listener for view
+        @Override
+        public void onClick(View v) {
+            listenerRef.get().onPositionClicked(getAdapterPosition());
+        }
+
+        //onLongClickListener for view
+        @Override
+        public boolean onLongClick(View v) {
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setTitle("Warning")
+                    .setMessage("You want to delete this item")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            listenerRef.get().onLongClicked(getAdapterPosition());
+                        }
+                    });
+
+            builder.create().show();
+            return true;
         }
     }
 }
