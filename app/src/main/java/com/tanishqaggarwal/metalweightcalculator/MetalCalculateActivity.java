@@ -1,6 +1,7 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,9 +53,10 @@ import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 import static com.tanishqaggarwal.metalweightcalculator.utils.Utils.roundDecimal;
 
 public class MetalCalculateActivity extends AppCompatActivity {
+    int CAMERA_REQUEST_CODE = 1;
     // Metadata of currently displayed shape
     ShapeType currShapeData;
-
+    ImageView dimPic;
     // Mappings from shape's fields to form elements created for the fields
     Map<ShapeTypeFieldInfo, EditText> shapeFieldSelectedValues;
     Map<ShapeTypeFieldInfo, Spinner> shapeFieldSelectedUnits;
@@ -90,7 +92,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         shapeType = bundle.getString("shape");
         currShapeData = CacheConstants.shapeTypes.get(shapeType);
-        ImageView dimPic = findViewById(R.id.dimPic);
+        dimPic = findViewById(R.id.dimPic);
         dimPic.setImageResource(currShapeData.shapeDimPic);
 
         // Get all form elements
@@ -475,10 +477,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
     public void readBarcode(View v) {
         // TODO this is currently dummy code that reads a hardcoded barcode
 
-        Bitmap myBitmap = BitmapFactory.decodeResource(
-                getApplicationContext().getResources(),
-                R.drawable.barcode);
-
+        Bitmap myBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.barcode);
         BarcodeDetector detector = new BarcodeDetector.Builder(getApplicationContext())
                 .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
                 .build();
@@ -499,6 +498,9 @@ public class MetalCalculateActivity extends AppCompatActivity {
      *
      * @param v
      */
+
+    Uri photoURI;
+
     public void takePicture(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -511,14 +513,26 @@ public class MetalCalculateActivity extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.tanishqaggarwal.metalweightcalculator",
-                        photoFile);
+                photoURI = FileProvider.getUriForFile(this, "com.tanishqaggarwal.metalweightcalculator", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, 1);
+                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
             }
         }
         // TODO link current photo path with current saved piece info object
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Result code is RESULT_OK only if the user captures an Image
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case 1:
+                    Log.d(">>>Image", "URI" + photoURI);
+//                    Picasso.get().load(photoURI).rotate(90).into(dimPic);
+                    break;
+            }
+        }
     }
 
     /**
@@ -541,5 +555,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
         currentPhotoPath.add(image.getAbsolutePath());
         return image;
     }
+
 
 }

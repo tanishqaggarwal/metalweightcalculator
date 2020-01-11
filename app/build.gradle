@@ -32,4 +32,5 @@ dependencies {
     implementation group: 'org.mozilla', name: 'rhino', version: '1.7.10'
     implementation 'de.siegmar:fastcsv:1.0.3'
     implementation 'pub.devrel:easypermissions:2.0.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
