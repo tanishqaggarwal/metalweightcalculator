@@ -1,16 +1,22 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Toast;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+
+import de.siegmar.fastcsv.writer.CsvAppender;
+import de.siegmar.fastcsv.writer.CsvWriter;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.exceptions.RealmPrimaryKeyConstraintException;
+import pub.devrel.easypermissions.EasyPermissions;
 
 
 /**
@@ -19,6 +25,9 @@ import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 public class MainActivity extends AppCompatActivity {
     Realm mRealm;
     SavedPieceAdapter sa;
+    String fileName = "PieceCsv";
+    public final int WRITE_PERMISSON_REQUEST_CODE = 1;
+
     /**
      * Function that is run upon initialization of application.
      *
@@ -29,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRealm = Realm.getDefaultInstance();
+        checkPermission();
         // Read available shape types and make the data available to all classes
         // via the static class variables
         CacheConstants.readShapeData(getAssets(), getApplicationContext());
@@ -44,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
         recList.setAdapter(sa);
         readRecords();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        readRecords();
     }
 
     /**
@@ -62,27 +78,64 @@ public class MainActivity extends AppCompatActivity {
      * @param v Button.
      */
     public void exportList(View v) {
-        // TODO
+        if (checkPermission())
+            mRealm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
+                    File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+                    File file = new File(path, "/" + "foo.csv");
+                    CsvWriter csvWriter = new CsvWriter();
+                    try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+                        for (int i = 0; i < results.size(); i++) {
+                            SavedPiece val = results.get(i);
+                            if (i == 0) {
+                                csvAppender.appendLine("Shape Type.Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
+                                        , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density");
+                            }
+                            csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
+                                    , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
+                                    , val.sideB + val.sideBU, val.widthW + val.widthWU
+                                    , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
+                                    , val.length + val.lengthU, val.weight + val.weightU,
+                                    String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density));
+                            csvAppender.endLine();
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
     }
 
     private void readRecords() {
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
+                sa.savedPiecesList.clear();
                 RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
                 sa.savedPiecesList.addAll(results);
+                sa.notifyDataSetChanged();
             }
         });
     }
-    private void deleteRecord() {
-//        mRealm.executeTransaction(new Realm.Transaction() {
-//            @Override
-//            public void execute(Realm realm) {
-//                SavedPiece employee = realm.where(SavedPiece.class).equalTo(SavedPiece.PROPERTY_NAME, inName.getText().toString()).findFirst();
-//                if (employee != null) {
-//                    employee.deleteFromRealm();
-//                }
-//            }
-//        });
+
+    private boolean checkPermission() {
+        String[] perms = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            return true;
+        } else {
+            // Do not have permissions, request them now
+            EasyPermissions.requestPermissions(this, "Need camera and storage permission", 100, perms);
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 }

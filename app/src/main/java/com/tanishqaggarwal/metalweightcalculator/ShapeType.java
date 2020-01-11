@@ -13,17 +13,19 @@ public class ShapeType extends RealmObject {
     protected int shapeIcon;
     protected int shapeDimPic;
     protected String areaCalculation;
+    protected String perimeterCalculation;
     protected RealmList<ShapeTypeFieldInfo> shapeFields;
 
     public ShapeType() {
     }
 
-    public ShapeType(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation,
+    public ShapeType(String shapeName, int shapeIcon, int shapeDimPic, String areaCalculation,String perimeterCalculation,
                      RealmList<ShapeTypeFieldInfo> shapeFields) {
         this.shapeName = shapeName;
         this.shapeIcon = shapeIcon;
         this.shapeDimPic = shapeDimPic;
         this.areaCalculation = areaCalculation;
+        this.perimeterCalculation = perimeterCalculation;
         this.shapeFields = shapeFields;
     }
 

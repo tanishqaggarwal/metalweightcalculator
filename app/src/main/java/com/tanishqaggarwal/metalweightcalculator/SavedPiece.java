@@ -19,8 +19,8 @@ public class SavedPiece extends RealmObject {
     }
 
 
-    public SavedPiece(String ShapeName,double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
-        this.ShapeName=ShapeName;
+    public SavedPiece(String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
+        this.ShapeName = ShapeName;
         this.widthA = widthA;
         this.diameterD = diameterD;
         this.diameterS = diameterS;

@@ -163,7 +163,7 @@
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:ems="10"
-                        android:hint="Length"
+                        android:hint="Weight"
                         android:layout_weight="1"
                         android:inputType="number" />
 

@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.Frame;
@@ -40,6 +41,8 @@ import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
+
+import static com.tanishqaggarwal.metalweightcalculator.Utils.roundDecimal;
 
 public class MetalCalculateActivity extends AppCompatActivity {
     // Metadata of currently displayed shape
@@ -61,8 +64,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
      * @param savedInstanceState
      */
     String shapeType;
-    // Editable density field
-    EditText vDensity;
     double widthA = 0.0, diameterD = 0.0, diameterS = 0.0, thicknessT = 0.0,
             sideA = 0.0, sideB = 0.0, widthW = 0.0, internalDaimeter = 0.0, outerDiameter = 0.0, length = 0.0, weight = 0.0;
     String widthAU = "", diameterDU = "", diameterSU = "", thicknessTU = "",
@@ -70,8 +71,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
     double density = 0.0;
     double pieceInputVal = 0.0;
     double kgInputVal = 0.0;
-    EditText fieldDataLength, kgPriceLength, fieldDataWigth, noofPieces;
+    // Editable density field
+    EditText fieldDataLength, kgPriceLength, fieldDataWigth, noofPieces, vDensity;
     Spinner fieldUnitsLength, fieldUnitsWigth;
+    TextView resultsText;
+    RadioGroup radioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         fieldDataWigth = findViewById(R.id.fieldDataWigth);
         fieldUnitsWigth = findViewById(R.id.fieldUnitsWigth);
         noofPieces = findViewById(R.id.noofPieces);
+        resultsText = findViewById(R.id.resultsText);
 
         // Read in JSON data on material densities
         densities = CacheConstants.readDensities(getAssets());
@@ -110,8 +115,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
             ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
             assert field != null;
             String fieldName = field.fieldName;
-            String fieldType = field.fieldType;
-
             // Set input field values
             EditText numericInput = fieldView.findViewById(R.id.fieldData);
             numericInput.setHintTextColor(Color.GRAY);
@@ -135,7 +138,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         // Initialize photos path
         currentPhotoPath = new ArrayList<>();
         // Add radio button listener and set default option to be "calculate by length"
-        RadioGroup radioGroup = findViewById(R.id.calculationOptionRadioGroup);
+        radioGroup = findViewById(R.id.calculationOptionRadioGroup);
         calculationController = new RadioViewController(this);
         radioGroup.setOnCheckedChangeListener(calculationController);
         radioGroup.check(R.id.calculateByLengthRadioBtn);
@@ -195,7 +198,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
     }
 
 
-    public void getDataFromFields() {
+    public boolean getDataFromFields() {
         // TODO
         for (int i = 0; i < currShapeData.shapeFields.size(); i++) {
             ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
@@ -244,31 +247,52 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 }
             } else {
                 Toast.makeText(MetalCalculateActivity.this, "Please enter all values", Toast.LENGTH_SHORT).show();
+                return false;
             }
-
-            length = checkValue(fieldDataLength);
-            lengthU = fieldUnitsLength.getSelectedItem().toString();
-            kgInputVal = checkValue(kgPriceLength);
-
-            weight = checkValue(fieldDataWigth);
-            weightU = fieldUnitsWigth.getSelectedItem().toString();
-
-            pieceInputVal = checkValue(noofPieces);
-
-            density = checkValue(vDensity);
-
-
-            Log.d(">>>", "3ndDy " + pieceInputVal + "/" + kgInputVal);
-            Log.d(">>>", "2ndDy " + length + "/" + weight);
-            Log.d(">>>", "FirstDy " + widthA + "/" + diameterD + "/" + diameterS + "/" + thicknessT + "/" +
-                    sideA + "/" + sideB + "/" + widthW + "/" + internalDaimeter + "/" + outerDiameter);
         }
+        int selectedCalculation = radioGroup.getCheckedRadioButtonId();
+        switch (selectedCalculation) {
+            case R.id.calculateByLengthRadioBtn:
+                if (checkValue(fieldDataLength) != 0.0 && checkValue(kgPriceLength) != 0.0) {
+                    length = checkValue(fieldDataLength);
+                    lengthU = fieldUnitsLength.getSelectedItem().toString();
+                    length *= CacheConstants.lengthUnits.get(lengthU);
+                    kgInputVal = checkValue(kgPriceLength);
+                } else {
+                    return false;
+                }
+                break;
+            case R.id.calculateByWeightRadioBtn:
+                if (checkValue(fieldDataWigth) != 0.0) {
+                    weight = checkValue(fieldDataWigth);
+                    weightU = fieldUnitsWigth.getSelectedItem().toString();
+                    weight *= CacheConstants.weightUnits.get(weightU);
+                } else {
+                    return false;
+                }
+                break;
+        }
+        if (checkValue(noofPieces) != 0.0 && checkValue(vDensity) != 0.0) {
+            pieceInputVal = checkValue(noofPieces);
+            density = checkValue(vDensity);
+        } else {
+            return false;
+        }
+
+        Log.d(">>>", "widthA " + widthA + " /diameterD " + diameterD +
+                "/diameterS " + diameterS + " /thicknessT " + thicknessT +
+                " /sideA " + sideA + " /sideB " + sideB + "/widthW " + widthW +
+                "outerDiameter/internalDaimeter " + internalDaimeter + " /outerDiameter " + outerDiameter);
+        Log.d(">>>", "length " + length + " /weight" + weight);
+        Log.d(">>>", "pieceInputVal " + pieceInputVal + " /kgInputVal " + kgInputVal);
+        return true;
     }
 
     public double checkValue(EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
             return Double.parseDouble(editText.getText().toString());
         } else {
+            Toast.makeText(MetalCalculateActivity.this, "Please enter all values", Toast.LENGTH_SHORT).show();
             return 0.0;
         }
     }
@@ -298,6 +322,172 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 vDensity.setText("");
             }
         });
+    }
+
+    /**
+     * Save piece info to local storage so that it can be displayed on the main screen.
+     *
+     * @param v Button that was clicked to save information.
+     */
+    public void savePieceInfo(View v) {
+        if (getDataFromFields())
+            addPiece(shapeType, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+    }
+
+    private void addPiece(String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
+        final SavedPiece object = new SavedPiece(ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    try {
+                        realm.copyToRealm(object);
+                        Toast.makeText(getApplicationContext(), "Item Saved", Toast.LENGTH_SHORT).show();
+                    } catch (RealmPrimaryKeyConstraintException e) {
+                        Toast.makeText(getApplicationContext(), "Primary Key exists, Press Update instead", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    /**
+     * Calculate and store results for the piece based on stored values.
+     *
+     * @param v
+     */
+    public void calculatePieceInfo(View v) {
+        if (!getDataFromFields())
+            return;
+        List<Object> fieldValues = new LinkedList<>();
+        for (ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
+            // Get unit-adjusted value of field
+            double fieldValue;
+            try {
+                fieldValue = Double.parseDouble(shapeFieldSelectedValues.get(fInfo).getText().toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                fieldValue = 0;
+            }
+            String fieldUnits = shapeFieldSelectedUnits.get(fInfo).getSelectedItem().toString();
+            fieldValue *= CacheConstants.lengthUnits.get(fieldUnits);
+            fieldValues.add(fieldValue);
+        }
+        Object[] calculationArgList = fieldValues.toArray();
+        double area = runCalculation(currShapeData.areaCalculation, calculationArgList);
+        double perimeter = runCalculation(currShapeData.perimeterCalculation, calculationArgList);
+
+        // Inputs and outputs of calculation.
+        double density;
+        try {
+            density = Double.parseDouble(vDensity.getText().toString());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            density = 0;
+        }
+        double kg_price = kgInputVal;
+        double num_pieces = pieceInputVal;
+        double length_per_piece = 0;
+        // Outputs
+        double price_per_piece = 0;
+        double volume_per_piece = 0;
+        double surface_area_per_piece = 0;
+        double mass_per_piece = 0;
+        double total_mass = 0;
+        double total_surface_area = 0;
+        double total_price = 0;
+
+        // Get calculation option and run calculation with field inputs
+        int selectedCalculation = radioGroup.getCheckedRadioButtonId();
+        switch (selectedCalculation) {
+            case R.id.calculateByLengthRadioBtn:
+                // Compute volume
+                length_per_piece = length; // TODO replace with field input
+                volume_per_piece = length_per_piece * area;
+                mass_per_piece = volume_per_piece * density;
+
+                break;
+            case R.id.calculateByWeightRadioBtn:
+                mass_per_piece = weight; // TODO replace with field input
+                volume_per_piece = mass_per_piece / density;
+                length_per_piece = volume_per_piece / area;
+
+                break;
+        }
+        price_per_piece = kg_price * mass_per_piece; //Here is the issue
+        total_price = price_per_piece * num_pieces;
+        surface_area_per_piece = length_per_piece * perimeter;
+        total_surface_area = surface_area_per_piece * num_pieces;
+        total_mass = mass_per_piece * num_pieces;
+        // TODO print results to screen, and add values to saved piece info
+        resultsText.setText("Price per piece:" + roundDecimal(price_per_piece) + "\n" +
+                "Total Price:" + roundDecimal(total_price) + "\n" +
+                "Surface Area per piece:" + roundDecimal(surface_area_per_piece) + "\n" +
+                "Total Surface Area:" + roundDecimal(total_surface_area) + "\n" +
+                "Total Mass:" + roundDecimal(total_mass)
+        );
+    }
+
+    /**
+     * Helper method that interprets the area calculation provided as a string of Javascript in the
+     * shape descriptor JSON file in order to compute the area.
+     *
+     * @param calculation String containing the javascript describing the calculation. The shape's
+     *                    field parameters will be provided, in order, to the function.
+     * @param args        Field parameters provided to the calculation.
+     * @return Value of cross-sectional area.
+     */
+    public static double runCalculation(String calculation, Object[] args) {
+        double area;
+
+        org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+        context.setOptimizationLevel(-1);
+        try {
+            org.mozilla.javascript.ScriptableObject scope = context.initStandardObjects();
+            org.mozilla.javascript.Scriptable that = context.newObject(scope);
+            org.mozilla.javascript.Function fct = context.compileFunction(scope, calculation,
+                    "script", 1, null);
+            Object result = fct.call(context, scope, that, args);
+
+            area = Double.parseDouble(org.mozilla.javascript.Context.jsToJava(result,
+                    double.class).toString());
+        } finally {
+            org.mozilla.javascript.Context.exit();
+        }
+        return area;
+    }
+
+    /**
+     * Read barcode in order to get piece information.
+     *
+     * @param v
+     */
+    public void readBarcode(View v) {
+        // TODO this is currently dummy code that reads a hardcoded barcode
+
+        Bitmap myBitmap = BitmapFactory.decodeResource(
+                getApplicationContext().getResources(),
+                R.drawable.barcode);
+
+        BarcodeDetector detector = new BarcodeDetector.Builder(getApplicationContext())
+                        .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
+                        .build();
+        if (!detector.isOperational()) {
+            System.out.println("Could not set up the detector!");
+            return;
+        }
+
+        Frame frame = new Frame.Builder().setBitmap(myBitmap).build();
+        SparseArray<Barcode> barcodes = detector.detect(frame);
+
+        Barcode thisCode = barcodes.valueAt(0);
+        System.out.println(thisCode.rawValue);
     }
 
     /**
@@ -348,160 +538,4 @@ public class MetalCalculateActivity extends AppCompatActivity {
         return image;
     }
 
-    /**
-     * Save piece info to local storage so that it can be displayed on the main screen.
-     *
-     * @param v Button that was clicked to save information.
-     */
-    public void savePieceInfo(View v) {
-        getDataFromFields();
-        addPiece(shapeType, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
-        //        Intent intent = new Intent(this, MainActivity.class);
-//        startActivity(intent);
-    }
-
-    /**
-     * Calculate and store results for the piece based on stored values.
-     *
-     * @param v
-     */
-    public void calculatePieceInfo(View v) {
-        List<Object> fieldValues = new LinkedList<>();
-        for (ShapeTypeFieldInfo fInfo : currShapeData.shapeFields) {
-            // Get unit-adjusted value of field
-            double fieldValue;
-            try {
-                fieldValue = Double.parseDouble(shapeFieldSelectedValues.get(fInfo).getText().toString());
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                fieldValue = 0;
-            }
-            String fieldUnits = shapeFieldSelectedUnits.get(fInfo).getSelectedItem().toString();
-            fieldValue *= CacheConstants.lengthUnits.get(fieldUnits);
-            fieldValues.add(fieldValue);
-        }
-        Object[] calculationArgList = fieldValues.toArray();
-        double area = runAreaCalculation(currShapeData.areaCalculation, calculationArgList);
-
-        // Inputs and outputs of calculation.
-        double density;
-        try {
-            density = Double.parseDouble(vDensity.getText().toString());
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            density = 0;
-        }
-        double kg_price = 1.0;
-        int num_pieces = 1;
-        double price_per_piece = 0;
-        double volume_per_piece = 0;
-        double mass_per_piece = 0;
-        double total_mass = 0;
-        double total_price = 0;
-        String results_str;
-
-        // Get calculation option and run calculation with field inputs
-        RadioGroup calculationOptionRadioGroup = findViewById(R.id.calculationOptionRadioGroup);
-        int selectedCalculation = calculationOptionRadioGroup.getCheckedRadioButtonId();
-        switch (selectedCalculation) {
-            case R.id.calculateByLengthRadioBtn:
-                // Compute volume
-                double length_per_piece = 1.0; // TODO replace with field
-                volume_per_piece = length_per_piece * area;
-                mass_per_piece = volume_per_piece * density;
-                price_per_piece = kg_price * mass_per_piece;
-                total_price = price_per_piece * num_pieces;
-                total_mass = mass_per_piece * num_pieces;
-                break;
-            case R.id.calculateByWeightRadioBtn:
-                mass_per_piece = 1.0; // TODO replace with field
-                volume_per_piece = mass_per_piece / density;
-                length_per_piece = volume_per_piece / area;
-                total_mass = mass_per_piece * num_pieces;
-                break;
-        }
-
-        // TODO print results to screen, and add values to saved piece info
-    }
-
-    /**
-     * Helper method that interprets the area calculation provided as a string of Javascript in the
-     * shape descriptor JSON file in order to compute the area.
-     *
-     * @param calculation String containing the javascript describing the calculation. The shape's
-     *                    field parameters will be provided, in order, to the function.
-     * @param args        Field parameters provided to the calculation.
-     * @return Value of cross-sectional area.
-     */
-    public static double runAreaCalculation(String calculation, Object[] args) {
-        double area;
-
-        org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
-        context.setOptimizationLevel(-1);
-        try {
-            org.mozilla.javascript.ScriptableObject scope = context.initStandardObjects();
-            org.mozilla.javascript.Scriptable that = context.newObject(scope);
-            org.mozilla.javascript.Function fct = context.compileFunction(scope, calculation,
-                    "script", 1, null);
-            Object result = fct.call(context, scope, that, args);
-
-            area = Double.parseDouble(org.mozilla.javascript.Context.jsToJava(result,
-                    double.class).toString());
-        } finally {
-            org.mozilla.javascript.Context.exit();
-        }
-        return area;
-    }
-
-    /**
-     * Read barcode in order to get piece information.
-     *
-     * @param v
-     */
-    public void readBarcode(View v) {
-        // TODO this is currently dummy code that reads a hardcoded barcode
-
-        Bitmap myBitmap = BitmapFactory.decodeResource(
-                getApplicationContext().getResources(),
-                R.drawable.barcode);
-
-        BarcodeDetector detector =
-                new BarcodeDetector.Builder(getApplicationContext())
-                        .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
-                        .build();
-        if (!detector.isOperational()) {
-            System.out.println("Could not set up the detector!");
-            return;
-        }
-
-        Frame frame = new Frame.Builder().setBitmap(myBitmap).build();
-        SparseArray<Barcode> barcodes = detector.detect(frame);
-
-        Barcode thisCode = barcodes.valueAt(0);
-        System.out.println(thisCode.rawValue);
-    }
-
-    private void addPiece(String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
-        final SavedPiece object = new SavedPiece(ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
-        Realm realm = null;
-        try {
-            realm = Realm.getDefaultInstance();
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    try {
-                        realm.copyToRealm(object);
-                        Toast.makeText(getApplicationContext(), "Item Saved", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } catch (RealmPrimaryKeyConstraintException e) {
-                        Toast.makeText(getApplicationContext(), "Primary Key exists, Press Update instead", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } finally {
-            if (realm != null) {
-                realm.close();
-            }
-        }
-    }
 }
