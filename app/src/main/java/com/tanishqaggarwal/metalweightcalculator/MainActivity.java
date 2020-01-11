@@ -11,9 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tanishqaggarwal.metalweightcalculator.adapters.SavedPieceAdapter;
+import com.tanishqaggarwal.metalweightcalculator.listners.RecyclerClickListner;
+import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
+import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -49,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
         // Read available shape types and make the data available to all classes
         // via the static class variables
         CacheConstants.readShapeData(getAssets(), getApplicationContext());
-//        addPiece();
-        // Create recycler view for saved pieces
         RecyclerView recList = findViewById(R.id.savedPiecesListView);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLongClicked(int position) {
                 Log.d(">>>", sa.savedPiecesList.get(position).ShapeName);
-                deleteRecord(sa.savedPiecesList.get(position).ShapeName);
+                deleteRecord(sa.savedPiecesList.get(position).id);
                 readRecords();
             }
         });
@@ -81,12 +85,12 @@ public class MainActivity extends AppCompatActivity {
         readRecords();
     }
 
-    private void deleteRecord(final String name) {
+    private void deleteRecord(final int id) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
-            public void execute(Realm realm) {
-                SavedPiece piece = realm.where(SavedPiece.class).equalTo("ShapeName", name).findFirst();
+            public void execute(@NonNull Realm realm) {
+                SavedPiece piece = realm.where(SavedPiece.class).equalTo("id", id).findFirst();
                 if (piece != null) {
                     piece.deleteFromRealm();
                 }
@@ -109,12 +113,14 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param v Button.
      */
+    RealmResults<SavedPiece> results;
+
     public void exportList(View v) {
         if (checkPermission()) {
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
+                    results = realm.where(SavedPiece.class).findAll();
                     File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
                     File file = new File(path, "/" + "itemFile.csv");
                     CsvWriter csvWriter = new CsvWriter();
@@ -122,18 +128,20 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < results.size(); i++) {
                             SavedPiece val = results.get(i);
                             if (i == 0) {
-                                csvAppender.appendLine("Shape Type.Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
-                                        , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density");
+                                csvAppender.appendLine("Shape Type","Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
+                                        , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density","Result");
                             }
+                            assert val != null;
                             csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
                                     , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
                                     , val.sideB + val.sideBU, val.widthW + val.widthWU
                                     , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
                                     , val.length + val.lengthU, val.weight + val.weightU,
-                                    String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density));
+                                    String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density),val.FinalResult);
                         }
                         csvAppender.endLine();
-                        shareFile(file);
+                        if (results != null && results.size() > 0)
+                            shareFile(file);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -171,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     private void readRecords() {
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
-            public void execute(Realm realm) {
+            public void execute(@NonNull Realm realm) {
                 sa.savedPiecesList.clear();
                 RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
                 sa.savedPiecesList.addAll(results);

@@ -1,5 +1,6 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,8 +8,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tanishqaggarwal.metalweightcalculator.R;
+import com.tanishqaggarwal.metalweightcalculator.listners.RecyclerClickListner;
+import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -21,8 +27,7 @@ import java.util.List;
  */
 public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.SavedPieceCardHolder> {
     public List<SavedPiece> savedPiecesList;
-    private SavedPiece spi;
-    RecyclerClickListner listener;
+    private RecyclerClickListner listener;
 
     public SavedPieceAdapter(RecyclerClickListner listener) {
         this.listener = listener;
@@ -40,9 +45,10 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
      * @param savedPieceCardHolder Old view holder.
      * @param i                    Index of new view holder.
      */
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(SavedPieceAdapter.SavedPieceCardHolder savedPieceCardHolder, int i) {
-        spi = savedPiecesList.get(i);
+        SavedPiece spi = savedPiecesList.get(i);
         savedPieceCardHolder.vShapeType.setText("Type:" + spi.ShapeName);
 
         checkVal(savedPieceCardHolder.width_a, spi.widthA);
@@ -87,6 +93,7 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
         checkVal(savedPieceCardHolder.density, spi.density);
         savedPieceCardHolder.density.setText("Density:" + spi.density);
 
+        savedPieceCardHolder.result.setText(spi.FinalResult);
     }
 
     private void checkVal(TextView tv, double data) {
@@ -94,13 +101,7 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
             tv.setVisibility(View.GONE);
     }
 
-    /**
-     * Inflates a RecyclerView-provided view with the layout of a saved piece.
-     *
-     * @param viewGroup
-     * @param i
-     * @return
-     */
+    @NonNull
     @Override
     public SavedPieceAdapter.SavedPieceCardHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
@@ -115,15 +116,15 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
      * piece.
      */
     public class SavedPieceCardHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        protected TextView vShapeType;
-        protected TextView width_a, width_w, density;
-        protected TextView length, piece_input_value, value_per_kg;
-        protected TextView outer_daimeter, side_a, side_b, thickness;
-        protected TextView weight, diameter_d, diameter_s, internal_daimeter;
+        TextView vShapeType;
+        TextView width_a, width_w, density;
+        TextView length, piece_input_value, value_per_kg;
+        TextView outer_daimeter, side_a, side_b, thickness;
+        TextView weight, diameter_d, diameter_s, internal_daimeter, result;
         LinearLayout delItem;
         private WeakReference<RecyclerClickListner> listenerRef;
 
-        public SavedPieceCardHolder(View v, RecyclerClickListner listener) {
+        private SavedPieceCardHolder(View v, RecyclerClickListner listener) {
             super(v);
             listenerRef = new WeakReference<>(listener);
             vShapeType = v.findViewById(R.id.shapeType);
@@ -141,6 +142,7 @@ public class SavedPieceAdapter extends RecyclerView.Adapter<SavedPieceAdapter.Sa
             piece_input_value = v.findViewById(R.id.piece_input_value);
             value_per_kg = v.findViewById(R.id.value_per_kg);
             density = v.findViewById(R.id.density);
+            result = v.findViewById(R.id.finalResult);
             delItem = v.findViewById(R.id.del_item);
             delItem.setOnLongClickListener(this);
             delItem.setOnClickListener(this);

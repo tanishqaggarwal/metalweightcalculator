@@ -1,4 +1,4 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.listners;
 
 public interface RecyclerClickListner {
     void onPositionClicked(int position);

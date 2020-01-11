@@ -1,5 +1,6 @@
 package com.tanishqaggarwal.metalweightcalculator;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,9 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -25,9 +23,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.FileProvider;
+
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeTypeFieldInfo;
+import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +49,7 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
-import static com.tanishqaggarwal.metalweightcalculator.Utils.roundDecimal;
+import static com.tanishqaggarwal.metalweightcalculator.utils.Utils.roundDecimal;
 
 public class MetalCalculateActivity extends AppCompatActivity {
     // Metadata of currently displayed shape
@@ -58,11 +65,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
     List<String> currentPhotoPath;
     // Densities used by density spinner
     Map<String, Double> densities;
-    /**
-     * Dynamically initialize form elements for the chosen shape.
-     *
-     * @param savedInstanceState
-     */
     String shapeType;
     double widthA = 0.0, diameterD = 0.0, diameterS = 0.0, thicknessT = 0.0,
             sideA = 0.0, sideB = 0.0, widthW = 0.0, internalDaimeter = 0.0, outerDiameter = 0.0, length = 0.0, weight = 0.0;
@@ -71,11 +73,13 @@ public class MetalCalculateActivity extends AppCompatActivity {
     double density = 0.0;
     double pieceInputVal = 0.0;
     double kgInputVal = 0.0;
+    String finalResult = "";
     // Editable density field
     EditText fieldDataLength, kgPriceLength, fieldDataWigth, noofPieces, vDensity;
     Spinner fieldUnitsLength, fieldUnitsWigth;
-    TextView resultsText;
     RadioGroup radioGroup;
+
+    TextView resultsText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,13 +197,11 @@ public class MetalCalculateActivity extends AppCompatActivity {
                     fieldUnitsWigth.setAdapter(adapter2);
                     break;
             }
-
         }
     }
 
 
     public boolean getDataFromFields() {
-        // TODO
         for (int i = 0; i < currShapeData.shapeFields.size(); i++) {
             ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
             EditText editText = shapeFieldSelectedValues.get(field);
@@ -278,7 +280,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
         } else {
             return false;
         }
-
+        finalResult = resultsText.getText().toString();
         Log.d(">>>", "widthA " + widthA + " /diameterD " + diameterD +
                 "/diameterS " + diameterS + " /thicknessT " + thicknessT +
                 " /sideA " + sideA + " /sideB " + sideB + "/widthW " + widthW +
@@ -330,18 +332,20 @@ public class MetalCalculateActivity extends AppCompatActivity {
      * @param v Button that was clicked to save information.
      */
     public void savePieceInfo(View v) {
-        if (getDataFromFields())
-            addPiece(shapeType, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+        calculatePieceInfo(null);
+        if (getDataFromFields()) {
+            addPiece((int) (Math.random() * 999 + 1), shapeType, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density, finalResult);
+        }
     }
 
-    private void addPiece(String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density) {
-        final SavedPiece object = new SavedPiece(ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density);
+    private void addPiece(int id, String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density, String finalResult) {
+        final SavedPiece object = new SavedPiece(id, ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density, finalResult);
         Realm realm = null;
         try {
             realm = Realm.getDefaultInstance();
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
-                public void execute(Realm realm) {
+                public void execute(@NonNull Realm realm) {
                     try {
                         realm.copyToRealm(object);
                         Toast.makeText(getApplicationContext(), "Item Saved", Toast.LENGTH_SHORT).show();
@@ -362,6 +366,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
      *
      * @param v
      */
+    @SuppressLint("SetTextI18n")
     public void calculatePieceInfo(View v) {
         if (!getDataFromFields())
             return;
@@ -393,7 +398,8 @@ public class MetalCalculateActivity extends AppCompatActivity {
         }
         double kg_price = kgInputVal;
         double num_pieces = pieceInputVal;
-        double length_per_piece = 0;
+        double length_per_piece = length;
+        double weight_per_piece = weight;
         // Outputs
         double price_per_piece = 0;
         double volume_per_piece = 0;
@@ -408,14 +414,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
         switch (selectedCalculation) {
             case R.id.calculateByLengthRadioBtn:
                 // Compute volume
-                length_per_piece = length; // TODO replace with field input
                 volume_per_piece = length_per_piece * area;
                 mass_per_piece = volume_per_piece * density;
 
                 break;
             case R.id.calculateByWeightRadioBtn:
-                mass_per_piece = weight; // TODO replace with field input
-                volume_per_piece = mass_per_piece / density;
+                volume_per_piece = weight_per_piece / density;
                 length_per_piece = volume_per_piece / area;
 
                 break;
@@ -476,8 +480,8 @@ public class MetalCalculateActivity extends AppCompatActivity {
                 R.drawable.barcode);
 
         BarcodeDetector detector = new BarcodeDetector.Builder(getApplicationContext())
-                        .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
-                        .build();
+                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
+                .build();
         if (!detector.isOperational()) {
             System.out.println("Could not set up the detector!");
             return;

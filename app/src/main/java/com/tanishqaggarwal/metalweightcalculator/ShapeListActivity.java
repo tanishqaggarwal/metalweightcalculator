@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tanishqaggarwal.metalweightcalculator.adapters.ShapeTypeAdapter;
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
+import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 

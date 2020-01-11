@@ -1,4 +1,4 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.utils;
 
 public class Utils {
     public static String roundDecimal(double val) {

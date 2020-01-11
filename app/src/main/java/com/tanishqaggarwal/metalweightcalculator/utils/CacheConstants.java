@@ -1,7 +1,10 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeTypeFieldInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,9 +12,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +58,7 @@ public class CacheConstants {
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
+            JSONObject json = new JSONObject(new String(buffer, StandardCharsets.UTF_8));
 
             JSONArray materialProperties = json.getJSONArray("materials");
             for(int i = 0; i < materialProperties.length(); i++) {
@@ -66,11 +69,7 @@ public class CacheConstants {
             }
             return metalData;
         }
-        catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        catch (JSONException ex) {
+        catch (IOException | JSONException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -148,10 +147,7 @@ public class CacheConstants {
                 shapeDimPicResourceId, shapeVolumeCalculation, shapeSurfaceAreaCalculation, shapeFields));
             }
         }
-        catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        catch (JSONException ex) {
+        catch (IOException | JSONException ex) {
             ex.printStackTrace();
         }
     }

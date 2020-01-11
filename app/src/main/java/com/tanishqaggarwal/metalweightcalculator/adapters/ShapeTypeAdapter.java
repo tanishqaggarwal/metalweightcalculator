@@ -1,13 +1,19 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.tanishqaggarwal.metalweightcalculator.MetalCalculateActivity;
+import com.tanishqaggarwal.metalweightcalculator.R;
+import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
 
 import java.util.List;
 
@@ -16,7 +22,7 @@ import java.util.List;
  */
 public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.ShapeTypeCardHolder> {
 
-    List<ShapeType> shapeTypeList;
+    private List<ShapeType> shapeTypeList;
 
     public ShapeTypeAdapter(List<ShapeType> shapeTypeList) {
         this.shapeTypeList = shapeTypeList;
@@ -31,7 +37,7 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
      * Populates newly recycled view holder with data from a previous view holder.
      *
      * @param shapeTypeCardHolder Old view holder.
-     * @param i Index of new view holder.
+     * @param i                   Index of new view holder.
      */
     @Override
     public void onBindViewHolder(ShapeTypeCardHolder shapeTypeCardHolder, int i) {
@@ -44,9 +50,10 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
      * Upon creation of a view holder, inflate it with the shape type layout.
      *
      * @param viewGroup Provided view holder.
-     * @param i Index of element in recycler view list.
+     * @param i         Index of element in recycler view list.
      * @return Shape type layout.
      */
+    @NonNull
     @Override
     public ShapeTypeCardHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
@@ -60,11 +67,11 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
      * Decomposes the ViewHolder provided by RecyclerView into the data fields relevant to a shape
      * type.
      */
-    public class ShapeTypeCardHolder extends RecyclerView.ViewHolder {
-        protected TextView vShapeName;
-        protected ImageView vShapeImg;
+    class ShapeTypeCardHolder extends RecyclerView.ViewHolder {
+        private TextView vShapeName;
+        private ImageView vShapeImg;
 
-        public ShapeTypeCardHolder(View v) {
+        private ShapeTypeCardHolder(View v) {
             super(v);
             vShapeName = v.findViewById(R.id.shapeName);
             vShapeImg = v.findViewById(R.id.shapeImg);

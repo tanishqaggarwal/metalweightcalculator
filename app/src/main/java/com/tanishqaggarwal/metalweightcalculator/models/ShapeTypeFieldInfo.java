@@ -1,6 +1,4 @@
-package com.tanishqaggarwal.metalweightcalculator;
-
-import java.util.List;
+package com.tanishqaggarwal.metalweightcalculator.models;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -9,9 +7,9 @@ import io.realm.RealmObject;
  * Metadata fields required to fully describe a shape numerically.
  */
 public class ShapeTypeFieldInfo extends RealmObject {
-    String fieldName;
-    String fieldType;
-    RealmList<String> fieldUnits;
+    public String fieldName;
+    public String fieldType;
+    public RealmList<String> fieldUnits;
 
     public ShapeTypeFieldInfo() {
     }
@@ -19,6 +17,6 @@ public class ShapeTypeFieldInfo extends RealmObject {
     public ShapeTypeFieldInfo(String fieldName, String fieldType, RealmList<String> fieldUnits) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
-        this.fieldUnits= fieldUnits;
+        this.fieldUnits = fieldUnits;
     }
 }

@@ -1,4 +1,4 @@
-package com.tanishqaggarwal.metalweightcalculator;
+package com.tanishqaggarwal.metalweightcalculator.models;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -9,12 +9,12 @@ import io.realm.RealmObject;
  */
 public class ShapeType extends RealmObject {
 
-    protected String shapeName;
-    protected int shapeIcon;
-    protected int shapeDimPic;
-    protected String areaCalculation;
-    protected String perimeterCalculation;
-    protected RealmList<ShapeTypeFieldInfo> shapeFields;
+    public String shapeName;
+    public int shapeIcon;
+    public int shapeDimPic;
+    public String areaCalculation;
+    public String perimeterCalculation;
+    public RealmList<ShapeTypeFieldInfo> shapeFields;
 
     public ShapeType() {
     }
