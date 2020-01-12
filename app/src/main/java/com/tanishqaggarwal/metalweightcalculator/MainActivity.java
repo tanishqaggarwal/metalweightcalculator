@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
         // Read available shape types and make the data available to all classes
         // via the static class variables
-        CacheConstants.readShapeData(getAssets(), getApplicationContext());
+        CacheConstants.readShapeData(getAssets(), this);
         RecyclerView recList = findViewById(R.id.savedPiecesListView);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);

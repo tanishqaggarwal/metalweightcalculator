@@ -3,16 +3,14 @@ package com.tanishqaggarwal.metalweightcalculator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,17 +23,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.FileProvider;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.blikoon.qrcodescanner.QrCodeActivity;
 import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
 import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
 import com.tanishqaggarwal.metalweightcalculator.models.ShapeTypeFieldInfo;
 import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,8 @@ import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 import static com.tanishqaggarwal.metalweightcalculator.utils.Utils.roundDecimal;
 
 public class MetalCalculateActivity extends AppCompatActivity {
-    int CAMERA_REQUEST_CODE = 1;
+    private final int CAMERA_REQUEST_CODE = 1;
+    private final int REQUEST_CODE_QR_SCAN = 101;
     // Metadata of currently displayed shape
     ShapeType currShapeData;
     ImageView dimPic;
@@ -90,7 +92,12 @@ public class MetalCalculateActivity extends AppCompatActivity {
 
         // Get selected shape type and add image to screen
         Bundle bundle = getIntent().getExtras();
-        shapeType = bundle.getString("shape");
+        try {
+            shapeType = bundle.getString("shape");
+        } catch (Exception e) {
+            shapeType = MyApplication.shapeType;
+            e.printStackTrace();
+        }
         currShapeData = CacheConstants.shapeTypes.get(shapeType);
         dimPic = findViewById(R.id.dimPic);
         dimPic.setImageResource(currShapeData.shapeDimPic);
@@ -476,22 +483,46 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
     public void readBarcode(View v) {
         // TODO this is currently dummy code that reads a hardcoded barcode
-
-        Bitmap myBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.barcode);
-        BarcodeDetector detector = new BarcodeDetector.Builder(getApplicationContext())
-                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
-                .build();
-        if (!detector.isOperational()) {
-            System.out.println("Could not set up the detector!");
-            return;
-        }
-
-        Frame frame = new Frame.Builder().setBitmap(myBitmap).build();
-        SparseArray<Barcode> barcodes = detector.detect(frame);
-
-        Barcode thisCode = barcodes.valueAt(0);
-        System.out.println(thisCode.rawValue);
+        Intent i = new Intent(MetalCalculateActivity.this, QrCodeActivity.class);
+        startActivityForResult(i, REQUEST_CODE_QR_SCAN);
     }
+
+    public void setDataToFields(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Iterator<String> keys = jsonObject.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = jsonObject.getString(key);
+                if (key.equals("data_type") && value.equals("weight")) {
+                    radioGroup.check(R.id.calculateByWeightRadioBtn);
+                } else if (key.equals("data_type") && value.equals("length")) {
+                    radioGroup.check(R.id.calculateByLengthRadioBtn);
+                }
+                for (int i = 0; i < currShapeData.shapeFields.size(); i++) {
+                    ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
+                    EditText editText = shapeFieldSelectedValues.get(field);
+                    String hint = editText.getHint().toString();
+                    Log.d(">>>key", key);
+                    Log.d(">>>hint", hint);
+                    if (key.equals(hint)) {
+                        editText.setText(value);
+                        break;
+                    }
+                }
+                if (key.equals("Length"))
+                    fieldDataLength.setText(value);
+                if (key.equals("Kg Price"))
+                    kgPriceLength.setText(value);
+                if (key.equals("Weight"))
+                    fieldDataWigth.setText(value);
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Take picture and associate it with the current metal piece that will be saved.
@@ -527,9 +558,26 @@ public class MetalCalculateActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
-                case 1:
+                case CAMERA_REQUEST_CODE:
                     Log.d(">>>Image", "URI" + photoURI);
 //                    Picasso.get().load(photoURI).rotate(90).into(dimPic);
+                    break;
+                case REQUEST_CODE_QR_SCAN:
+                    if (data == null)
+                        return;
+                    //Getting the passed result
+                    final String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
+                    AlertDialog alertDialog = new AlertDialog.Builder(MetalCalculateActivity.this).create();
+                    alertDialog.setTitle("Scan result");
+                    alertDialog.setMessage(result);
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    setDataToFields(result);
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
                     break;
             }
         }

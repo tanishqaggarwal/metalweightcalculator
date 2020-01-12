@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tanishqaggarwal.metalweightcalculator.MetalCalculateActivity;
+import com.tanishqaggarwal.metalweightcalculator.MyApplication;
 import com.tanishqaggarwal.metalweightcalculator.R;
 import com.tanishqaggarwal.metalweightcalculator.models.ShapeType;
 
@@ -81,6 +82,7 @@ public class ShapeTypeAdapter extends RecyclerView.Adapter<ShapeTypeAdapter.Shap
                 public void onClick(View v) {
                     // Open metal calculator and tell it the shape that was selected
                     String chosenShape = vShapeName.getText().toString();
+                    MyApplication.shapeType=chosenShape;
                     Intent intent = new Intent(ctx, MetalCalculateActivity.class);
                     intent.putExtra("shape", chosenShape);
                     ctx.startActivity(intent);

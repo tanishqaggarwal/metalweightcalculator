@@ -7,6 +7,7 @@ import io.realm.RealmConfiguration;
 
 public class MyApplication extends Application {
 
+    public static String shapeType;
 
     @Override
     public void onCreate() {
