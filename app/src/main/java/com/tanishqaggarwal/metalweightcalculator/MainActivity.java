@@ -16,18 +16,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.tanishqaggarwal.metalweightcalculator.adapters.SavedPieceAdapter;
 import com.tanishqaggarwal.metalweightcalculator.listners.RecyclerClickListner;
 import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
 import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 
 import de.siegmar.fastcsv.writer.CsvAppender;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -121,29 +128,37 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void execute(Realm realm) {
                     results = realm.where(SavedPiece.class).findAll();
-                    File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+                    File path = Environment.getExternalStorageDirectory();
                     File file = new File(path, "/" + "itemFile.csv");
                     CsvWriter csvWriter = new CsvWriter();
-                    try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
-                        for (int i = 0; i < results.size(); i++) {
-                            SavedPiece val = results.get(i);
-                            if (i == 0) {
-                                csvAppender.appendLine("Shape Type","Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
-                                        , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density","Result");
+                    try {
+                        Document document = openDocOnce();
+                        try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+                            for (int i = 0; i < results.size(); i++) {
+                                SavedPiece val = results.get(i);
+                                if (i == 0) {
+                                    csvAppender.appendLine("Shape Type", "Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
+                                            , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density", "Result");
+                                }
+                                assert val != null;
+                                csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
+                                        , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
+                                        , val.sideB + val.sideBU, val.widthW + val.widthWU
+                                        , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
+                                        , val.length + val.lengthU, val.weight + val.weightU,
+                                        String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density), val.FinalResult);
+                                imagesTodoc(val.metalPieceImages, document);
+                                document.newPage();
                             }
-                            assert val != null;
-                            csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
-                                    , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
-                                    , val.sideB + val.sideBU, val.widthW + val.widthWU
-                                    , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
-                                    , val.length + val.lengthU, val.weight + val.weightU,
-                                    String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density),val.FinalResult);
+                            csvAppender.endLine();
+                            document.close();
+                            if (results != null && results.size() > 0)
+                                shareFile(file);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        csvAppender.endLine();
-                        if (results != null && results.size() > 0)
-                            shareFile(file);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    } catch (IOException | DocumentException e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -151,6 +166,37 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Need permission of this operation", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public Document openDocOnce() throws IOException, DocumentException {
+        Document document = new Document();
+        String directoryPath = android.os.Environment.getExternalStorageDirectory().toString();
+        PdfWriter.getInstance(document, new FileOutputStream(directoryPath + "/metalImages.pdf")); //  Change pdf's name.
+        document.open();
+        return document;
+    }
+
+    public void imagesTodoc(RealmList<String> metalPieceImages, Document document) throws IOException, DocumentException {
+        if (metalPieceImages.size() > 0) {
+            Image image = null;  // Change image's name and extension.
+            for (int i = 0; i < metalPieceImages.size(); i++) {
+                File f = new File(metalPieceImages.get(i));
+                // Get the absolute path of file f
+                String absolute = f.getAbsolutePath();
+                System.out.println("Absolute  path: " + absolute);
+                if (!f.exists()) {
+                    System.out.println("File no exist " + absolute);
+                    return;
+                }
+                image = Image.getInstance(absolute);
+                float scaler = ((document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin() - 0) / image.getWidth()) * 100; // 0 means you have no indentation. If you have any, change it.
+                image.scalePercent(scaler);
+                image.setAlignment(Image.ALIGN_CENTER | Image.ALIGN_TOP);
+                document.add(image);
+
+            }
+        }
+    }
+
 
     private void shareFile(File file) {
         if (Build.VERSION.SDK_INT >= 24) {
@@ -206,4 +252,5 @@ public class MainActivity extends AppCompatActivity {
         // Forward results to EasyPermissions
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
+
 }

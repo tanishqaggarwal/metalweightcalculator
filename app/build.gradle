@@ -34,4 +34,5 @@ dependencies {
     implementation 'pub.devrel:easypermissions:2.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.blikoon:QRCodeScanner:0.1.2'
+    implementation 'com.itextpdf:itextg:5.5.10'
 }

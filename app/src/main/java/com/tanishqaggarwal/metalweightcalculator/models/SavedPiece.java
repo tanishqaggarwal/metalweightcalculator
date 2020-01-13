@@ -1,5 +1,8 @@
 package com.tanishqaggarwal.metalweightcalculator.models;
 
+import java.util.ArrayList;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -19,10 +22,12 @@ public class SavedPiece extends RealmObject {
     @PrimaryKey
     public int id;
 
+    public RealmList<String> metalPieceImages;
+
     public SavedPiece() {
     }
 
-    public SavedPiece(int id, String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density, String finalResult) {
+    public SavedPiece(int id, String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density, String finalResult, RealmList<String> metalPieceImages) {
         this.id = id;
 
         this.ShapeName = ShapeName;
@@ -55,5 +60,7 @@ public class SavedPiece extends RealmObject {
         this.kgInputVal = kgInputVal;
 
         this.FinalResult = finalResult;
+
+        this.metalPieceImages = metalPieceImages;
     }
 }

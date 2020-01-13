@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 import static com.tanishqaggarwal.metalweightcalculator.utils.Utils.roundDecimal;
@@ -56,6 +57,7 @@ import static com.tanishqaggarwal.metalweightcalculator.utils.Utils.roundDecimal
 public class MetalCalculateActivity extends AppCompatActivity {
     private final int CAMERA_REQUEST_CODE = 1;
     private final int REQUEST_CODE_QR_SCAN = 101;
+    RealmList<String> metalPieceImages = new RealmList<>();
     // Metadata of currently displayed shape
     ShapeType currShapeData;
     ImageView dimPic;
@@ -348,7 +350,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
     }
 
     private void addPiece(int id, String ShapeName, double widthA, String widthAU, double diameterD, String diameterDU, double diameterS, String diameterSU, double thicknessT, String thicknessTU, double sideA, String sideAU, double sideB, String sideBU, double widthW, String widthWU, double internalDaimeter, String internalDaimeterU, double outerDiameter, String outerDiameterU, double length, String lengthU, double weight, String weightU, double pieceInputVal, double kgInputVal, double density, String finalResult) {
-        final SavedPiece object = new SavedPiece(id, ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density, finalResult);
+        final SavedPiece object = new SavedPiece(id, ShapeName, widthA, widthAU, diameterD, diameterDU, diameterS, diameterSU, thicknessT, thicknessTU, sideA, sideAU, sideB, sideBU, widthW, widthWU, internalDaimeter, internalDaimeterU, outerDiameter, outerDiameterU, length, lengthU, weight, weightU, pieceInputVal, kgInputVal, density, finalResult, metalPieceImages);
         Realm realm = null;
         try {
             realm = Realm.getDefaultInstance();
@@ -482,7 +484,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
      * @param v
      */
     public void readBarcode(View v) {
-        // TODO this is currently dummy code that reads a hardcoded barcode
         Intent i = new Intent(MetalCalculateActivity.this, QrCodeActivity.class);
         startActivityForResult(i, REQUEST_CODE_QR_SCAN);
     }
@@ -503,8 +504,6 @@ public class MetalCalculateActivity extends AppCompatActivity {
                     ShapeTypeFieldInfo field = currShapeData.shapeFields.get(i);
                     EditText editText = shapeFieldSelectedValues.get(field);
                     String hint = editText.getHint().toString();
-                    Log.d(">>>key", key);
-                    Log.d(">>>hint", hint);
                     if (key.equals(hint)) {
                         editText.setText(value);
                         break;
@@ -531,22 +530,26 @@ public class MetalCalculateActivity extends AppCompatActivity {
      */
 
     Uri photoURI;
-
+    File photoFile = null;
     public void takePicture(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
+                ex.printStackTrace();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this, "com.tanishqaggarwal.metalweightcalculator", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+                try {
+                    photoURI = FileProvider.getUriForFile(this, "com.tanishqaggarwal.metalweightcalculator", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         // TODO link current photo path with current saved piece info object
@@ -560,6 +563,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
             switch (requestCode) {
                 case CAMERA_REQUEST_CODE:
                     Log.d(">>>Image", "URI" + photoURI);
+                    metalPieceImages.add(photoFile.toString());
 //                    Picasso.get().load(photoURI).rotate(90).into(dimPic);
                     break;
                 case REQUEST_CODE_QR_SCAN:
