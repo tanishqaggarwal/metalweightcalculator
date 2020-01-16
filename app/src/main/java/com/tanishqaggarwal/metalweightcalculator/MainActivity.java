@@ -16,25 +16,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.pdf.PdfWriter;
 import com.tanishqaggarwal.metalweightcalculator.adapters.SavedPieceAdapter;
 import com.tanishqaggarwal.metalweightcalculator.listners.RecyclerClickListner;
 import com.tanishqaggarwal.metalweightcalculator.models.SavedPiece;
 import com.tanishqaggarwal.metalweightcalculator.utils.CacheConstants;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import de.siegmar.fastcsv.writer.CsvAppender;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     SavedPieceAdapter sa;
     String fileName = "PieceCsv";
     public final int WRITE_PERMISSON_REQUEST_CODE = 1;
+    private static final int BUFFER = 80000;
 
     /**
      * Function that is run upon initialization of application.
@@ -120,46 +121,14 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param v Button.
      */
-    RealmResults<SavedPiece> results;
-
     public void exportList(View v) {
         if (checkPermission()) {
+            images.clear();
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    results = realm.where(SavedPiece.class).findAll();
-                    File path = Environment.getExternalStorageDirectory();
-                    File file = new File(path, "/" + "itemFile.csv");
-                    CsvWriter csvWriter = new CsvWriter();
-                    try {
-                        Document document = openDocOnce();
-                        try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
-                            for (int i = 0; i < results.size(); i++) {
-                                SavedPiece val = results.get(i);
-                                if (i == 0) {
-                                    csvAppender.appendLine("Shape Type", "Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
-                                            , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density", "Result");
-                                }
-                                assert val != null;
-                                csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
-                                        , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
-                                        , val.sideB + val.sideBU, val.widthW + val.widthWU
-                                        , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
-                                        , val.length + val.lengthU, val.weight + val.weightU,
-                                        String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density), val.FinalResult);
-                                imagesTodoc(val.metalPieceImages, document);
-                                document.newPage();
-                            }
-                            csvAppender.endLine();
-                            document.close();
-                            if (results != null && results.size() > 0)
-                                shareFile(file);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    } catch (IOException | DocumentException e) {
-                        e.printStackTrace();
-                    }
+                    RealmResults<SavedPiece> results = realm.where(SavedPiece.class).findAll();
+                    saveResulttoCSV(results);
                 }
             });
         } else {
@@ -167,38 +136,71 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Document openDocOnce() throws IOException, DocumentException {
-        Document document = new Document();
-        String directoryPath = android.os.Environment.getExternalStorageDirectory().toString();
-        PdfWriter.getInstance(document, new FileOutputStream(directoryPath + "/metalImages.pdf")); //  Change pdf's name.
-        document.open();
-        return document;
-    }
+    ArrayList<String> images = new ArrayList<>();
+    File file;
 
-    public void imagesTodoc(RealmList<String> metalPieceImages, Document document) throws IOException, DocumentException {
-        if (metalPieceImages.size() > 0) {
-            Image image = null;  // Change image's name and extension.
-            for (int i = 0; i < metalPieceImages.size(); i++) {
-                File f = new File(metalPieceImages.get(i));
-                // Get the absolute path of file f
-                String absolute = f.getAbsolutePath();
-                System.out.println("Absolute  path: " + absolute);
-                if (!f.exists()) {
-                    System.out.println("File no exist " + absolute);
-                    return;
+    private void saveResulttoCSV(RealmResults<SavedPiece> results) {
+        file = new File(Environment.getExternalStorageDirectory(), "/" + "/itemFile.csv");
+        CsvWriter csvWriter = new CsvWriter();
+        try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+            for (int i = 0; i < results.size(); i++) {
+                SavedPiece val = results.get(i);
+                if (i == 0) {
+                    csvAppender.appendLine("Shape Type", "Width (A)", "Diameter (D)", "Diameter (S)", "Thickness (T)", "Side (A)", "Side (B)"
+                            , "Width (W)", "Internal Daimeter", "Outer Diameter", "Length", "Weight", "No of piece", "Weight (Kg)", "Density", "Result");
                 }
-                image = Image.getInstance(absolute);
-                float scaler = ((document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin() - 0) / image.getWidth()) * 100; // 0 means you have no indentation. If you have any, change it.
-                image.scalePercent(scaler);
-                image.setAlignment(Image.ALIGN_CENTER | Image.ALIGN_TOP);
-                document.add(image);
-
+                assert val != null;
+                csvAppender.appendLine(val.ShapeName, val.widthA + val.widthAU, val.diameterD + val.diameterDU
+                        , val.diameterS + val.diameterSU, val.thicknessT + val.thicknessTU, val.sideA + val.sideAU
+                        , val.sideB + val.sideBU, val.widthW + val.widthWU
+                        , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
+                        , val.length + val.lengthU, val.weight + val.weightU,
+                        String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density), val.FinalResult);
+                images.addAll(val.metalPieceImages);
             }
+            csvAppender.endLine();
+
+            String inputPath = Environment.getExternalStorageDirectory().getPath() + "/metalImages.zip";
+            zip(images, inputPath);
+            //realm already update
+            if (results.size() > 0)
+                shareFile(inputPath, file.getAbsolutePath());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
+    public void zip(ArrayList<String> _files, String zipFileName) {
+        try {
+            BufferedInputStream origin = null;
+            FileOutputStream dest = new FileOutputStream(zipFileName);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
+                    dest));
+            byte data[] = new byte[BUFFER];
 
-    private void shareFile(File file) {
+            for (int i = 0; i < _files.size(); i++) {
+                Log.v("Compress", "Adding: " + _files.get(i));
+                FileInputStream fi = new FileInputStream(_files.get(i));
+                origin = new BufferedInputStream(fi, BUFFER);
+
+                ZipEntry entry = new ZipEntry(_files.get(i).substring(_files.get(i).lastIndexOf("/") + 1));
+                out.putNextEntry(entry);
+                int count;
+
+                while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                    out.write(data, 0, count);
+                }
+                origin.close();
+            }
+
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void shareFile(String zipfile, String csvfile) {
         if (Build.VERSION.SDK_INT >= 24) {
             try {
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -207,17 +209,23 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        Log.d(">>>", "Share File" + file.getAbsolutePath());
+        Log.d(">>>", "Share File path" + file);
+        File zipfile_ = new File(zipfile);
+        File csvfile_ = new File(csvfile);
+        Uri zippath_ = Uri.fromFile(zipfile_);
+        Uri csvpath_ = Uri.fromFile(csvfile_);
+        Log.d(">>>", "Share Uri zip" + zippath_);
+        Log.d(">>>", "Share Uri csv" + csvpath_);
 
-        Uri path = Uri.fromFile(file);
-        Log.d(">>>", "Share Uri" + path);
-
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-// set the type to 'email'
+        Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        // set the type to 'email'
         emailIntent.setType("*/email");
-// the attachment
-        emailIntent.putExtra(Intent.EXTRA_STREAM, path);
-// the mail subject
+        // the attachment
+        ArrayList<Uri> uris = new ArrayList<Uri>();
+        uris.add(zippath_);
+        uris.add(csvpath_);
+        emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        // the mail subject
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Share file");
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
