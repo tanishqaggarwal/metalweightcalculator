@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,9 +46,9 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends AppCompatActivity {
     Realm mRealm;
     SavedPieceAdapter sa;
-    String fileName = "PieceCsv";
-    public final int WRITE_PERMISSON_REQUEST_CODE = 1;
     private static final int BUFFER = 80000;
+    ArrayList<String> images = new ArrayList<>();
+    File file;
 
     /**
      * Function that is run upon initialization of application.
@@ -136,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    ArrayList<String> images = new ArrayList<>();
-    File file;
-
     private void saveResulttoCSV(RealmResults<SavedPiece> results) {
         file = new File(Environment.getExternalStorageDirectory(), "/" + "/itemFile.csv");
         CsvWriter csvWriter = new CsvWriter();
@@ -201,19 +199,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void shareFile(String zipfile, String csvfile) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            try {
-                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                m.invoke(null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         Log.d(">>>", "Share File path" + file);
         File zipfile_ = new File(zipfile);
         File csvfile_ = new File(csvfile);
-        Uri zippath_ = Uri.fromFile(zipfile_);
-        Uri csvpath_ = Uri.fromFile(csvfile_);
+        Uri zippath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() , zipfile_);
+        Uri csvpath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() , csvfile_);
+
         Log.d(">>>", "Share Uri zip" + zippath_);
         Log.d(">>>", "Share Uri csv" + csvpath_);
 
@@ -221,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         // set the type to 'email'
         emailIntent.setType("*/email");
         // the attachment
-        ArrayList<Uri> uris = new ArrayList<Uri>();
+        ArrayList<Uri> uris = new ArrayList<>();
         uris.add(zippath_);
         uris.add(csvpath_);
         emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
