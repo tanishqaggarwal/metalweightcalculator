@@ -3,7 +3,6 @@ package com.tanishqaggarwal.metalweightcalculator;
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -158,18 +158,14 @@ public class MainActivity extends AppCompatActivity {
                         , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
                         , val.length + val.lengthU, val.weight + val.weightU,
                         String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density), val.FinalResult);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    changeFileName(val.metalPieceImages, i);
-                } else {
-                    images.addAll(val.metalPieceImages);
-                }
+                changeFileName(val.metalPieceImages, i);
             }
             csvAppender.endLine();
 
             String inputPath = Environment.getExternalStorageDirectory().getPath() + "/metalImages.zip";
-            zip(images, inputPath);
+
             //realm already update
-            if (results.size() > 0)
+            if (results.size() > 0 && zip(images, inputPath))
                 shareFile(inputPath, file.getAbsolutePath());
 
         } catch (Exception ex) {
@@ -177,29 +173,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void changeFileName(RealmList<String> metalPieceImages, int csvRow) {
         csvRow++;
         for (int ii = 0; ii < metalPieceImages.size(); ii++) {
             try {
                 int subfileName = ii;
-                Path source = Paths.get(metalPieceImages.get(ii));
-                Path destination = Paths.get(Environment.getExternalStorageDirectory() + "/" + csvRow + "-" + ++subfileName + ".jpg");
-                File fdelete = new File(destination.toUri());
-                if (fdelete.exists()) {
-                    fdelete.delete();
-                    Files.copy(source, destination);
-
+                String sourcePath = metalPieceImages.get(ii);
+                String destinationPath = Environment.getExternalStorageDirectory() + "/" + csvRow + "-" + ++subfileName + ".jpg";
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    Path source = Paths.get(sourcePath);
+                    Path destination = Paths.get(destinationPath);
+                    File fdelete = new File(destination.toUri());
+                    if (fdelete.exists()) {
+                        fdelete.delete();
+                        Files.copy(source, destination);
+                    } else
+                        Files.copy(source, destination);
+                } else {
+                    try (InputStream in = new FileInputStream(sourcePath)) {
+                        try (OutputStream out = new FileOutputStream(destinationPath)) {
+                            // Transfer bytes from in to out
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = in.read(buf)) > 0) {
+                                out.write(buf, 0, len);
+                            }
+                        }
+                    }
                 }
-                Log.d(">>>", destination.toString());
-                images.add(String.valueOf(destination));
+
+                Log.d(">>>", destinationPath);
+                images.add(destinationPath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void zip(ArrayList<String> _files, String zipFileName) {
+    public boolean zip(ArrayList<String> _files, String zipFileName) {
         try {
             BufferedInputStream origin = null;
             FileOutputStream dest = new FileOutputStream(zipFileName);
@@ -223,8 +234,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             out.close();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
