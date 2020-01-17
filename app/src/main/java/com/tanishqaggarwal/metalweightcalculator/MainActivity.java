@@ -6,12 +6,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,8 +27,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -36,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 import de.siegmar.fastcsv.writer.CsvAppender;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -154,7 +158,11 @@ public class MainActivity extends AppCompatActivity {
                         , val.internalDaimeter + val.internalDaimeterU, val.outerDiameter + val.outerDiameterU
                         , val.length + val.lengthU, val.weight + val.weightU,
                         String.valueOf(val.pieceInputVal), String.valueOf(val.kgInputVal), String.valueOf(val.density), val.FinalResult);
-                images.addAll(val.metalPieceImages);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    changeFileName(val.metalPieceImages, i);
+                } else {
+                    images.addAll(val.metalPieceImages);
+                }
             }
             csvAppender.endLine();
 
@@ -166,6 +174,28 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void changeFileName(RealmList<String> metalPieceImages, int csvRow) {
+        csvRow++;
+        for (int ii = 0; ii < metalPieceImages.size(); ii++) {
+            try {
+                int subfileName = ii;
+                Path source = Paths.get(metalPieceImages.get(ii));
+                Path destination = Paths.get(Environment.getExternalStorageDirectory() + "/" + csvRow + "-" + ++subfileName + ".jpg");
+                File fdelete = new File(destination.toUri());
+                if (fdelete.exists()) {
+                    fdelete.delete();
+                    Files.copy(source, destination);
+
+                }
+                Log.d(">>>", destination.toString());
+                images.add(String.valueOf(destination));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -202,8 +232,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(">>>", "Share File path" + file);
         File zipfile_ = new File(zipfile);
         File csvfile_ = new File(csvfile);
-        Uri zippath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() , zipfile_);
-        Uri csvpath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() , csvfile_);
+        Uri zippath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName(), zipfile_);
+        Uri csvpath_ = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName(), csvfile_);
 
         Log.d(">>>", "Share Uri zip" + zippath_);
         Log.d(">>>", "Share Uri csv" + csvpath_);
