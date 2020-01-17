@@ -360,6 +360,7 @@ public class MetalCalculateActivity extends AppCompatActivity {
                     try {
                         realm.copyToRealm(object);
                         Toast.makeText(getApplicationContext(), "Item Saved", Toast.LENGTH_SHORT).show();
+                        MetalCalculateActivity.this.finish();
                     } catch (RealmPrimaryKeyConstraintException e) {
                         Toast.makeText(getApplicationContext(), "Primary Key exists, Press Update instead", Toast.LENGTH_SHORT).show();
                     }

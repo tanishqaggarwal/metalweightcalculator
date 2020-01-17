@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteRecord(final int id) {
-        Realm mRealm = Realm.getDefaultInstance();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(@NonNull Realm realm) {
@@ -139,6 +138,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(MainActivity.this, "Need permission of this operation", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void delAllItems(View v) {
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.deleteAll();
+                sa.savedPiecesList.clear();
+                sa.notifyDataSetChanged();
+            }
+        });
     }
 
     private void saveResulttoCSV(RealmResults<SavedPiece> results) {
